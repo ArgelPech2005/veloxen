@@ -1,0 +1,70 @@
+
+/* ==================== FOOTER ==================== */
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 40px 20px 20px;
+    font-family: 'Lato', sans-serif;
+  }
+  
+  .footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .footer-logo,
+  .footer-contact,
+  .footer-social {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .footer-logo h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .footer-contact h4,
+  .footer-social h4 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .footer p {
+    margin: 5px 0;
+  }
+  
+  .social-icons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .social-icons img {
+    width: 32px;
+    height: 32px;
+    transition: transform 0.2s ease;
+  }
+  
+  .social-icons img:hover {
+    transform: scale(1.2);
+  }
+  
+  .footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    font-size: 14px;
+    color: #ccc;
+    border-top: 1px solid #444;
+    margin-top: 30px;
+  }
+  
+  /* ==================== FIN FOOTER ==================== */
+  

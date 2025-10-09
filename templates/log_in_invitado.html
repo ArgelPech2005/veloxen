@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedidos Invitado</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pedido.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loaderG.css') }}">
+</head>
+<body class="bodyCliente">
+<header class="header">
+
+  {% include 'components/loaderG.html' %}
+
+  <div class="nav-container">
+    <h1 class="logo">Bienvenido a Clari's: Invitado</h1>
+    <ul class="nav-links">
+      <li>
+        <a href="{{ url_for('home') }}" class="btn-31">
+          <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+          <span class="text-container"><span class="text">Regresar</span></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<form id="pedidoForm" method="POST" action="{{ url_for('EnviarPedidoInvitado') }}">
+
+<div class="formulario-contenedor">
+
+  <div class="campo-container">
+    <label for="nombre">NOMBRE:</label>
+    <input type="text" class="input" name="nombre" id="nombre" required>
+  </div>
+
+  <div class="campo-container">
+    <label for="apellido">APELLIDO:</label>
+    <input type="text" class="input" name="apellido" id="apellido" required>
+  </div>
+
+  <div class="campo-container">
+    <label for="telefono">NÚMERO DE TELÉFONO:</label>
+    <input type="tel" class="input" name="telefono" id="telefono" required>
+  </div>
+
+  <div class="campo-container">
+    <label for="apodo">APODO:</label>
+    <input type="text" class="input" name="apodo" id="apodo">
+  </div>
+
+  <div class="campo-container">
+    <label for="selectorProductos">Selecciona tus productos</label>
+    <select id="selectorProductos" class="input" onchange="agregarProducto()">
+      <option value="">Elige un producto</option>
+      {% for producto in Productos %}
+        {% if producto.ID_producto != 'EP' and producto.Cantidad != 0 %}
+          <option 
+            value="{{ producto.ID_producto }}" 
+            data-precio="{{ producto.Precio }}" 
+            data-stock="{{ producto.Cantidad }}">
+            {{ producto.Nombre }}
+          </option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="productosSeleccionados"></div>
+
+  <div class="campo-container">
+    <label>Método de Entrega:</label>
+    <input type="text" class="input" value="Recoger en tienda" readonly>
+    <input type="hidden" name="metodoEntrega" value="PU">
+  </div>
+
+  <div class="campo-container">
+    <label>Método de Pago:</label>
+    <input type="text" class="input" value="Transferencia bancaria" readonly>
+    <input type="hidden" name="metodoPago" value="P2">
+  </div>
+
+  <div style="text-align:center;margin-top:20px;">
+    <button type="button" onclick="validarYMostrarResumen()" class="boton-enviar">Calcular Total</button>
+  </div>
+
+</div>
+
+<div id="modalResumen" class="modal">
+  <div class="modal-content">
+    <h2>Resumen del Pedido</h2>
+    <div id="detalleResumen"></div>
+    <div class="modal-buttons">
+      <button class="btn-confirmar" onclick="confirmarPedido()">Confirmar Pedido</button>
+      <button class="btn-cancelar" onclick="cerrarResumen()">Modificar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalConfirmado" class="modal">
+  <div class="modal-content">
+    <h2>Pedido Realizado</h2>
+    <p>¡Gracias por tu pedido!</p>
+    <button class="btn-confirmar" onclick="cerrarConfirmado()">Cerrar</button>
+  </div>
+</div>
+  
+<!-- Modal de validación -->
+<div id="modalValidacion" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Porfavor de llenar todos los datos</h2>
+    <h3>Recordando que el metodo de pago es unico por tranferencia<h3>
+    <div id="detalleErroresValidacion"></div>
+    <div class="modal-buttons">
+      <button class="btn-confirmar" onclick="cerrarModalValidacion()">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ✅ Agrega un producto al contenedor si no está repetido
+  function agregarProducto() {
+    const selector = document.getElementById("selectorProductos");
+    const contenedor = document.getElementById("productosSeleccionados");
+    const id = selector.value;
+    const nombre = selector.options[selector.selectedIndex].text;
+    const stock = selector.options[selector.selectedIndex].getAttribute("data-stock");
+
+    if (id && !document.getElementById("producto_" + id)) {
+      const div = document.createElement("div");
+      div.className = "producto-item";
+      div.id = "producto_" + id;
+      div.innerHTML = `
+        <div style="margin-top:10px;">
+          <strong>${nombre}</strong> 
+          <span style="color:gray; font-size: 0.9em;">(Stock: ${stock})</span><br>
+          <input type="hidden" name="productos[]" value="${id}">
+          <label for="cantidad_${id}">Cantidad:</label>
+          <input 
+            type="number" 
+            id="cantidad_${id}" 
+            name="cantidades[]" 
+            class="input" 
+            min="1" 
+            max="${stock}" 
+            value="1" 
+            style="max-width: 100px;" 
+            oninput="validarCantidad('${id}', ${stock})">
+          <button type="button" class="boton-eliminar" onclick="eliminarProducto('${id}')">❌</button>
+        </div>
+      `;
+      contenedor.appendChild(div);
+    }
+
+    selector.value = "";
+  }
+
+  // ✅ Valida que la cantidad esté dentro del rango permitido
+  function validarCantidad(id, stock) {
+    const input = document.getElementById("cantidad_" + id);
+    const valor = parseInt(input.value);
+    if (valor > stock) {
+      input.value = stock;
+    } else if (valor < 1 || isNaN(valor)) {
+      input.value = 1;
+    }
+  }
+
+  // ✅ Elimina el producto del contenedor
+  function eliminarProducto(id) {
+    const div = document.getElementById("producto_" + id);
+    if (div) div.remove();
+  }
+
+  // ✅ Muestra lista de errores en un modal
+  function mostrarErrores(listaErrores) {
+    const contenedor = document.getElementById("detalleErroresValidacion");
+    contenedor.innerHTML = "<ul>" + listaErrores.map(e => `<li>${e}</li>`).join("") + "</ul>";
+    document.getElementById("modalValidacion").style.display = "block";
+  }
+
+  // ✅ Cierra el modal de validación
+  function cerrarModalValidacion() {
+    document.getElementById("modalValidacion").style.display = "none";
+  }
+
+  // ✅ Valida datos, muestra resumen y modales
+  function validarYMostrarResumen() {
+    let errores = [];
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const productos = document.querySelectorAll('[name="productos[]"]');
+    const resumen = document.getElementById("detalleResumen");
+    resumen.innerHTML = "";
+
+    // Validaciones
+    if (!nombre) errores.push("El nombre es obligatorio.");
+    if (!apellido) errores.push("El apellido es obligatorio.");
+    if (!telefono) errores.push("El numero de teléfono es obligatorio.");
+    if (productos.length === 0) errores.push("Debes seleccionar al menos un producto.");
+
+    if (errores.length > 0) {
+      mostrarErrores(errores);
+      return;
+    }
+
+    // Mostrar resumen si no hay errores
+    let total = 0;
+    productos.forEach(prod => {
+      const id = prod.value;
+      const cantidad = parseInt(document.getElementById(`cantidad_${id}`).value);
+      const nombreProducto = document.querySelector(`#producto_${id} strong`).innerText;
+      const precio = parseFloat(document.querySelector(`#selectorProductos option[value='${id}']`)?.dataset.precio || 0);
+      const subtotal = precio * cantidad;
+      total += subtotal;
+
+      resumen.innerHTML += `<p><strong>${nombreProducto}</strong> x ${cantidad} = $${subtotal.toFixed(2)}</p>`;
+    });
+
+    resumen.innerHTML += `<hr><h3>Total a pagar: $${total.toFixed(2)}</h3>`;
+    document.getElementById("modalResumen").style.display = "block";
+
+    // Mostrar modal de transferencia si aplica
+    const metodoPago = document.querySelector('input[name="metodoPago"]:checked')?.value;
+    if (metodoPago === "P2") {
+      document.getElementById("modalTransferencia").style.display = "block";
+    }
+  }
+
+  // ✅ Confirma el pedido y muestra mensaje final
+  function confirmarPedido() {
+    document.getElementById("modalResumen").style.display = "none";
+    document.getElementById("modalConfirmado").style.display = "block";
+  }
+
+  // ✅ Cierra el resumen y limpia el formulario
+  function cerrarResumen() {
+    document.getElementById("modalResumen").style.display = "none";
+  }
+
+  // ✅ Cierra el modal de pedido confirmado y resetea todo
+  function cerrarConfirmado() {
+    document.getElementById("modalConfirmado").style.display = "none";
+    document.getElementById("pedidoForm").reset();
+    document.getElementById("productosSeleccionados").innerHTML = "";
+  }
+
+  // ✅ Cierra el modal de datos de transferencia
+  function cerrarModalTransferencia() {
+    document.getElementById("modalTransferencia").style.display = "none";
+  }
+</script>
+
+
+<div class="footer-separado">
+  {% include 'components/footer.html' %}
+</div>
+
+</body>
+</html>

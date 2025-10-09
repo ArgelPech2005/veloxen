@@ -1,0 +1,120 @@
+/* ==================== Estilos para la página de Usuario ==================== */
+
+/* Estilos generales */
+body.bodyUsuario {
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column; /* Importante para acomodar el formulario arriba y footer abajo */
+  min-height: 100vh; /* Ahora sí dinámico */
+}
+
+/* Contenedor principal que contiene el formulario */
+.usuario-container {
+  flex: 1; /* Hace que ocupe el espacio restante */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Formulario */
+.form-container {
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+}
+
+/* Estilo del formulario */
+.login-form {
+  width: 100%;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 30px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Título */
+.titulo-form {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333333;
+}
+
+/* Grupo de inputs */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #333333;
+}
+
+.input-group label i {
+  margin-right: 8px;
+}
+
+.input-group .input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 25px;
+  font-size: 16px;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+}
+
+/* Botones */
+.btn-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Botón de Uiverse */
+.btn-login-uiverse {
+  padding: 15px 25px;
+  border: unset;
+  border-radius: 15px;
+  color: #212121;
+  background: #e8e8e8;
+  position: relative;
+  font-weight: 1000;
+  font-size: 17px;
+  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  transition: all 250ms;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-login-uiverse::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  border-radius: 15px;
+  background-color: #212121;
+  z-index: -1;
+  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+  transition: all 250ms;
+}
+
+.btn-login-uiverse:hover {
+  color: #e8e8e8;
+}
+
+.btn-login-uiverse:hover::before {
+  width: 100%;
+}
+
+

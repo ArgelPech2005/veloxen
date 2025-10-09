@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuario</title>
+  <!-- Incluye FontAwesome para los iconos -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/log_in_user.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loaderG.css') }}">
+</head>
+<body class="bodyUsuario">
+
+  {% include 'components/loaderG.html' %}
+
+  <!-- Solo queda el formulario centrado -->
+  <div class="usuario-container">
+    <div class="form-container">
+      <form class="login-form" method="POST">
+        <h2 class="titulo-form">Iniciar Sesión</h2>
+
+       <div class="input-group">
+          <label for="number">
+            <i class="fa-solid fa-phone"></i> Número celular
+          </label>
+          <input 
+            id="number" 
+            type="tel" 
+            name="number" 
+            pattern="\d{10}" 
+            maxlength="10" 
+            placeholder="Ingresa tu número celular" 
+            class="input" 
+            value="{{ request.form.get('number') or '' }}"
+            inputmode="numeric"
+            autocomplete="tel">
+          {% if errores.get("number") %}
+            <span class="error">{{ errores["number"] }}</span>
+          {% endif %}
+        </div>
+
+        <div class="input-group">
+          <label for="password">
+            <i class="fa-solid fa-lock"></i> Contraseña
+          </label>
+          <input id="password" type="password" name="password" placeholder="Ingresa tu contraseña" class="input" value="{{ request.form.get('password') or '' }}">
+          {% if errores.get("password") %}
+            <span class="error">{{ errores["password"] }}</span>
+          {% endif %}
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="btn-login-uiverse">Iniciar sesión</button>
+          <button type="button" onclick="location.href='{{ url_for('home') }}'" class="btn-login-uiverse">Regresar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+</body>
+{% include 'components/footer.html' %}
+</html>

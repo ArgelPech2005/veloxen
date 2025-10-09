@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PedidosC</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pedido.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loaderG.css') }}">
+</head>
+<body class="bodyCliente">
+
+  {% include 'components/loaderG.html' %}
+  
+<header class="header">
+  <div class="nav-container">
+    <h1 class="logo">Bienvenido a Clari's</h1>
+    <ul class="nav-links">
+      <li>
+        <a href="{{ url_for('logout') }}" class="btn-31">
+          <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+          <span class="text-container"><span class="text">Cerrar sesión</span></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<form id="pedidoForm" method="POST" action="{{ url_for('EnviarPedido') }}">
+
+<div class="formulario-contenedor">
+
+  <div class="campo-container">
+    <label>CLIENTE:</label>
+    <div class="campo-dato">{{ Usuario.nombre }}</div>
+  </div>
+
+  <div class="campo-container">
+    <label>NÚMERO DE TELÉFONO:</label>
+    <div class="campo-dato">{{ Usuario.id }}</div>
+  </div>
+
+  {% if Usuario.apodo %}  
+  <div class="campo-container">
+    <label>APODO:</label>
+    <div class="campo-dato">{{ Usuario.apodo }}</div>
+  </div>
+  {% endif %}
+
+  <div class="campo-container">
+    <label for="selectorProductos">Selecciona tus productos</label>
+    <select id="selectorProductos" class="input" onchange="agregarProducto()">
+      <option value="">Elige un producto</option>
+      {% for producto in Productos %}
+        {% if producto.ID_producto != 'EP' and producto.Cantidad != 0 %}
+          <option 
+            value="{{ producto.ID_producto }}" 
+            data-precio="{{ producto.Precio }}" 
+            data-stock="{{ producto.Cantidad }}">
+            {{ producto.Nombre }}
+          </option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="productosSeleccionados"></div>
+
+  <div class="campo-container">
+    <label for="metodoEntrega">¿CÓMO QUIERES RECIBIR TU PEDIDO?</label>
+    <select id="metodoEntrega" name="metodoEntrega" class="input">
+      <option value="">Selecciona una opción</option>
+      <option value="PU">Recoger en tienda</option>
+      <option value="DMC">Entrega a domicilio</option>
+    </select>
+  </div>
+
+  <div id="opcionesDomicilio" style="display: none;">
+    <div class="custom-radio">
+      <input type="radio" id="direccionGuardada" name="tipoDireccion" value="guardada" onchange="mostrarCampoDireccion()" checked>
+      <label for="direccionGuardada">Usar dirección guardada</label>
+    </div>
+
+    <div id="vistaDireccionGuardada" style="margin-top: 5px;">
+      <label for="direccionVista">Tu dirección guardada:</label>
+      <input type="text" id="direccionVista" class="input" value="{{ Usuario.direccion }}" readonly>
+    </div>
+
+    <input type="hidden" name="direccionSeleccionada" id="direccionSeleccionada" value="{{ Usuario.direccion }}">
+
+    <div class="custom-radio">
+      <input type="radio" id="nuevaDireccion" name="tipoDireccion" value="nueva" onchange="mostrarCampoDireccion()">
+      <label for="nuevaDireccion">Ingresar otra dirección</label>
+    </div>
+  </div>
+
+  <div id="modalInfoDireccion" class="modal">
+    <div class="modal-content">
+      <h2>📞 Contacto Requerido</h2>
+      <p>Si desea ingresar una nueva dirección, por favor comuníquese al siguiente número:</p>
+      <p><strong style="font-size: 1.4em;">9993565773</strong></p>
+      <div class="modal-buttons">
+        <button class="btn-confirmar" onclick="cerrarModalInfoDireccion()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="campo-container">
+    <label for="metodoPago">¿CÓMO QUIERES PAGAR?</label>
+    <select id="metodoPago" name="metodoPago" class="input">
+      <option value="">Selecciona un método de pago</option>
+      <option value="P1">Pago en efectivo</option>
+      <option value="P2">Transferencia bancaria</option>
+    </select>
+  </div>
+
+  <div style="text-align:center;margin-top:20px;">
+    <button type="button" onclick="validarYMostrarResumen()" class="boton-enviar">Calcular Total</button>
+  </div>
+
+</div>
+
+<!-- Modales -->
+<div id="modalResumen" class="modal">
+  <div class="modal-content">
+    <h2>Resumen del Pedido</h2>
+    <div id="detalleResumen"></div>
+    <div class="modal-buttons">
+      <button class="btn-confirmar" onclick="confirmarPedido()">Confirmar Pedido</button>
+      <button class="btn-cancelar" onclick="cerrarResumen()">Modificar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalError" class="modal">
+  <div class="modal-content">
+    <h2>Error en Pedido</h2>
+    <div id="detalleError"></div>
+    <div class="modal-buttons">
+      <button class="btn-cancelar" onclick="cerrarError()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalTransferencia" class="modal">
+  <div class="modal-content">
+    <h2>📲 Información de Transferencia</h2>
+    <p>Realiza tu pago a la cuenta: 1234 5678 9012 3456</p>
+    <p>Banco: BBVA</p>
+    <p>Enviar comprobante al WhatsApp: 9993565773</p>
+    <div class="modal-buttons">
+      <button class="btn-confirmar" onclick="cerrarModalTransferencia()">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalConfirmado" class="modal">
+  <div class="modal-content">
+    <h2>🎉 Pedido Realizado</h2>
+    <p>¡Gracias por tu pedido!</p>
+    <button class="btn-confirmar" onclick="cerrarConfirmado()">Cerrar</button>
+  </div>
+</div>
+
+<!-- Modal emergente de stock insuficiente -->
+<div id="modalStock" class="stock-modal">
+  <div class="stock-modal-content">
+    <span class="close" onclick="cerrarModal()">&times;</span>
+    <p><strong>No hay suficiente stock disponible para este producto.</strong></p>
+    <button class="modal-btn" onclick="cerrarModal()">Aceptar</button>
+  </div>
+</div>
+
+</form>
+
+<script>
+function agregarProducto() {
+    const selector = document.getElementById("selectorProductos");
+    const contenedor = document.getElementById("productosSeleccionados");
+    const id = selector.value;
+    const nombre = selector.options[selector.selectedIndex].text;
+    const stock = selector.options[selector.selectedIndex].getAttribute("data-stock");
+
+    if (id && !document.getElementById("producto_" + id)) {
+      const div = document.createElement("div");
+      div.className = "producto-item";
+      div.id = "producto_" + id;
+      div.innerHTML = `
+        <div style="margin-top:10px;">
+          <strong>${nombre}</strong> <span style="color:gray; font-size: 0.9em;">(Stock: ${stock})</span><br>
+          <input type="hidden" name="productos[]" value="${id}">
+          <label for="cantidad_${id}">Cantidad:</label>
+          <input 
+            type="number" 
+            id="cantidad_${id}" 
+            name="cantidades[]" 
+            class="input" 
+            min="1" 
+            max="${stock}" 
+            value="1" 
+            style="max-width: 100px;" 
+            oninput="validarCantidad('${id}', ${stock})">
+          <button type="button" class="boton-eliminar" onclick="eliminarProducto('${id}')">❌</button>
+        </div>`;
+      contenedor.appendChild(div);
+    }
+
+    selector.value = "";
+  }
+
+  function validarCantidad(id, stock) {
+    const input = document.getElementById("cantidad_" + id);
+    const valor = parseInt(input.value);
+
+    if (valor > stock) {
+      mostrarModal();  // Muestra el modal
+      input.value = stock;
+    } else if (valor < 1 || isNaN(valor)) {
+      input.value = 1;
+    }
+  }
+
+  function eliminarProducto(id) {
+    const div = document.getElementById("producto_" + id);
+    if (div) div.remove();
+  }
+
+  function mostrarModal() {
+    document.getElementById("modalStock").style.display = "block";
+  }
+
+  function cerrarModal() {
+    document.getElementById("modalStock").style.display = "none";
+  }
+
+  // Cerrar modal al hacer clic fuera
+  window.onclick = function(event) {
+    const modal = document.getElementById("modalStock");
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+
+  function mostrarOpcionesEntrega() {
+    const metodo = document.getElementById("metodoEntrega").value;
+    const opciones = document.getElementById("opcionesDomicilio");
+
+    if (metodo === "DMC") {
+      opciones.style.display = "block";
+      mostrarCampoDireccion();  // Actualizar automáticamente dirección
+    } else {
+      opciones.style.display = "none";
+      document.getElementById("direccionSeleccionada").value = "";
+    }
+  }
+
+  function mostrarCampoDireccion() {
+    const guardada = document.getElementById("direccionGuardada").checked;
+    const hiddenInput = document.getElementById("direccionSeleccionada");
+
+    if (guardada) {
+      hiddenInput.value = document.getElementById("direccionVista").value;
+    } else {
+      document.getElementById("modalInfoDireccion").style.display = "block"; // Modal de advertencia
+      hiddenInput.value = "OTRA";
+    }
+  }
+
+  function cerrarModalInfoDireccion() {
+    document.getElementById("modalInfoDireccion").style.display = "none";
+  }
+
+  function validarYMostrarResumen() {
+    let errores = [];
+    const productos = document.querySelectorAll('[name="productos[]"]');
+    const metodoEntrega = document.getElementById("metodoEntrega").value;
+    const metodoPago = document.getElementById("metodoPago").value;
+
+    if (productos.length === 0) errores.push("Debes seleccionar al menos un producto.");
+    if (!metodoEntrega) errores.push("Debes elegir un método de entrega.");
+    if (!metodoPago) errores.push("Debes elegir un método de pago.");
+
+    if (errores.length > 0) {
+      mostrarErrores(errores);
+      return;
+    }
+    mostrarResumen();
+  }
+
+  function mostrarErrores(errores) {
+    const modal = document.getElementById("modalError");
+    const detalle = document.getElementById("detalleError");
+    detalle.innerHTML = "<ul>" + errores.map(e => `<li>${e}</li>`).join("") + "</ul>";
+    modal.style.display = "block";
+  }
+
+  function cerrarError() {
+    document.getElementById("modalError").style.display = "none";
+  }
+
+  function mostrarResumen() {
+    const resumen = document.getElementById("detalleResumen");
+    resumen.innerHTML = "";
+    let total = 0;
+    const productos = document.querySelectorAll('[name="productos[]"]');
+
+    productos.forEach((prod, index) => {
+      const id = prod.value;
+      const cantidad = parseInt(document.getElementById(`cantidad_${id}`).value);
+      const nombre = document.querySelector(`#producto_${id} strong`).innerText;
+      const precio = parseFloat(document.querySelector(`#selectorProductos option[value="${id}"]`)?.dataset.precio || 0);
+      const subtotal = precio * cantidad;
+      total += subtotal;
+
+      resumen.innerHTML += `<p><strong>${nombre}</strong> x ${cantidad} = $${subtotal.toFixed(2)}</p>`;
+    });
+
+    resumen.innerHTML += `<hr><h3>Total a pagar: $${total.toFixed(2)}</h3>`;
+    document.getElementById("modalResumen").style.display = "block";
+  }
+
+  function cerrarResumen() {
+    document.getElementById("modalResumen").style.display = "none";
+  }
+
+  function confirmarPedido() {
+    document.getElementById("modalResumen").style.display = "none";
+    document.getElementById("pedidoForm").submit();  // ✅ Esto envía el formulario al servidor
+  }
+
+
+  function cerrarConfirmado() {
+    document.getElementById("modalConfirmado").style.display = "none";
+  
+    // ✅ Opcionalmente limpiar el formulario si quieres que pueda hacer un nuevo pedido
+    document.getElementById("pedidoForm").reset();
+    document.getElementById("productosSeleccionados").innerHTML = "";
+    mostrarOpcionesEntrega(); // Para esconder dirección si estaba seleccionado domicilio
+  }
+
+  function cerrarModalTransferencia() {
+    document.getElementById("modalTransferencia").style.display = "none";
+  }
+
+  function enviarFormulario() {
+    document.getElementById("pedidoForm").submit();
+  }
+
+  // Mostrar automáticamente modal de transferencia si se selecciona
+  document.getElementById("metodoPago").addEventListener("change", function() {
+    if (this.value === "P2") {
+      document.getElementById("modalTransferencia").style.display = "block";
+    }
+  });
+
+  // Configuraciones iniciales cuando carga la página
+  window.addEventListener("load", () => {
+    document.getElementById("metodoEntrega").addEventListener("change", mostrarOpcionesEntrega);
+    document.getElementById("direccionGuardada").addEventListener("change", mostrarCampoDireccion);
+    document.getElementById("nuevaDireccion").addEventListener("change", mostrarCampoDireccion);
+    mostrarOpcionesEntrega();  
+    mostrarCampoDireccion();
+  });
+</script>
+
+
+
+<div class="footer-separado">
+  {% include 'components/footer.html' %}
+</div>
+
+</body>
+</html>

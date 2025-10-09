@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clari's</title>
+  <!-- Fuentes de Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Hoja de estilos principal -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loader.css') }}">
+<!-- Tipografías profesionales -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bodyInicio">
+
+  {% include 'components/loader.html' %}
+  
+  <!-- ==================== ZONA SUPERIOR: HEADER Y NAVBAR ==================== -->
+  <header class="header">
+    <div class="nav-container"> 
+      <h1 class="logo">Clari's</h1>
+      <nav class="navbar">
+        <ul class="nav-links">
+          <li>
+            <a href="{{ url_for('Usuario') }}" class="btn-31">
+              <span class="text-container">
+                <span class="text">Usuario</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('invitado') }}" class="btn-31">
+              <span class="text-container">
+                <span class="text">Invitado</span>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==================== ZONA PRINCIPAL: BANNER DE BIENVENIDA ==================== -->
+  <main class="main-content">
+    <h1 class="titulo">BIENVENIDO A Clari's</h1>
+    <h2 class="subtitulo">Comida rápida</h2>
+
+      <!-- ==================== SECCIÓN: INFORMACIÓN DE LA EMPRESA ==================== -->
+    <section class="info-section">
+      <!-- Container 1: Información General -->
+      <div class="info-container">
+        <h2>Información General</h2>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-front">
+              <p>General</p>
+            </div>
+            <div class="card-back">
+              <p>
+                Ofrecemos hamburguesas, hot dogs y papas a la francesa.  
+                Nuestras hamburguesas son 100% caseras, elaboradas sin exceso de conservadores ni químicos.  
+                Utilizamos ingredientes naturales y carne molida de pollo para garantizar un sabor delicioso y saludable.  
+                Nos preocupamos por brindar productos frescos y de calidad a todos nuestros clientes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Container 2: Datos de la Dueña -->
+      <div class="info-container">
+        <h2>Datos de la Dueña</h2>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-front">
+              <p>Perfil</p>
+            </div>
+            <div class="card-back">
+              <p>
+                Cuento con habilidades como trabajo en equipo, liderazgo, paciencia, adaptabilidad y gestión del tiempo.  
+                Este emprendimiento ha sido clave para desarrollar mis capacidades culinarias y mejorar la administración del inventario, ventas y compras necesarias para la elaboración de nuestros productos.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Container 3: Información Detallada -->
+      <div class="info-container">
+        <h2>Información Detallada</h2>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-front">
+              <p>Misión / Visión</p>
+            </div>
+            <div class="card-back">
+              <p>
+                Hamburguesas Clari’s nació con el objetivo de apoyar la economía familiar.  
+                Gracias a mis conocimientos en cocina y el apoyo de mi esposo, mi madre y mi hijo mayor, decidí emprender este negocio con pasión y compromiso, ofreciendo siempre productos caseros y de calidad.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+    </section>
+
+        <!-- ==================== SECCIÓN: MAPA AMPLIADO ==================== -->
+    <section class="map-section">
+      <!-- Contenedor exclusivo para el mapa, ocupa 100% del ancho -->
+      <div class="map-container">
+        <h2>Ubicación</h2>
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!4v1712609381116!6m8!1m7!1sbCxUOnDSeuKqh448Q7sQZA!2m2!1d21.1348331!2d-89.5101909!3f160.51389494937564!4f14.896818962173128!5f0.7820865974627469" 
+          width="100%" 
+          height="700" 
+          style="border:0; border-radius: 40px;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </section>   
+
+    <!-- ==================== SECCIÓN: MENÚ ==================== -->
+  
+    <!-- ==================== SECCIÓN: MENÚ ESTILO CARTA RESTAURANTE ==================== -->
+
+<!-- 🍔 HAMBURGUESAS -->
+<section class="wrap hamburguesas">
+  <div class="wrap-title-section">
+    <div class="wrap-title-section menu-header">
+      <h2 class="menu-title">Menú</h2>
+      <p class="menu-subtitle">Elige entre nuestras deliciosas hamburguesas, hot dogs y complementos</p>
+    </div>
+    <h2>Hamburguesas</h2>
+  </div>
+  <div class="wrap column-2 carta">
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/burger-icon.svg') }}" alt="Hamburguesa Clásica">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HAMBURGUESA CLÁSICA</h4>
+        <p>Romanita, Mayonesa, Carne (Pollo), Jamón, Queso, Cebolla y Tomate.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$36</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/burger-fries-icon.svg') }}" alt="Normal con papas">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HAMBURGUESA CLÁSICA CON PAPAS</h4>
+        <p>Romanita, Mayonesa, Carne (Pollo), Jamón, Queso, Cebolla, Tomate y Orden de papas.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$46</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/burger-icon.svg') }}" alt="Hawaiana">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HAMBURGUESA HAWAIANA</h4>
+        <p>Romanita, Mayonesa, Carne (Pollo), Jamón, Queso, Cebolla, Tomate, Piña y Tocineta.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$46</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/burger-fries-icon.svg') }}" alt="Hawaiana con papas">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HAMBURGUESA HAWAIANA CON PAPAS</h4>
+        <p>Romanita, Mayonesa, Carne (Pollo), Jamón, Queso, Cebolla, Tomate, Piña, Tocineta y Orden de papas.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$56</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/burger-icon.svg') }}" alt="Especial">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HAMBURGUESA ESPECIAL</h4>
+        <p>Romanita, Mayonesa, Carne (Pollo), Jamón, Queso, Cebolla, Tomate, Piña, Tocineta y Salchicha.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$56</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/burger-fries-icon.svg') }}" alt="Especial con papas">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HAMBURGUESA ESPECIAL CON PAPAS</h4>
+        <p>Romanita, Mayonesa, Carne (Pollo), Jamón, Queso, Cebolla, Tomate, Piña, Tocineta, Salchicha y Orden de papas.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$66</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 🌭 HOT DOGS -->
+<section class="wrap hotdogs">
+  <div class="wrap-title-section">
+    <h2>Hot Dogs</h2>
+  </div>
+  <div class="wrap column-2 carta">
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/hot-dog.svg') }}" alt="Hot Dog Normal">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HOT DOGS NORMALES</h4>
+        <p>Mayonesa, Salchicha, Romanita, Cebolla y Capsup.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$14</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/hot-dogs.svg') }}" alt="Hot Dog con Papas">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HOT DOGS CON PAPAS</h4>
+        <p>Es un Hot Dog normal pero con papas.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$24</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/hot-dog.svg') }}" alt="Hot Dog Especial">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HOT DOG ESPECIAL</h4>
+        <p>Mayonesa, Salchicha, Romanita, Cebolla, Capsup y Tocineta.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$22</span>
+      </div>
+    </div>
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/hot-dogs.svg') }}" alt="Hot Dog Especial con Papas">
+      </div>
+      <div class="title-plato-carta">
+        <h4>HOT DOG ESPECIAL CON PAPAS</h4>
+        <p>Es un Hot Dog especial pero con papas.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$30</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 🍟 EXTRAS -->
+<section class="wrap extras">
+  <div class="wrap-title-section">
+    <h2>Extras</h2>
+  </div>
+  <div class="wrap column-2 carta">
+
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/french-fries-svgrepo-com.svg') }}" alt="Papas a la Francesa">
+      </div>
+      <div class="title-plato-carta">
+        <h4>PAPAS A LA FRANCESA</h4>
+        <p>Acompañamiento clásico, crujientes y doradas.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$37</span>
+      </div>
+    </div>
+  
+    <div class="plato-carta">
+      <div class="img-plato-carta">
+        <img src="{{ url_for('static', filename='images/meat-icon.svg') }}" alt="Carne Extra">
+      </div>
+      <div class="title-plato-carta">
+        <h4>CARNE EXTRA</h4>
+        <p>Agrega carne adicional a tu hamburguesa o hot dog.</p>
+      </div>
+      <div class="precio-plato-carta">
+        <span>$10</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+      </main>    
+</body>
+
+      {% include 'components/footer.html' %}
+      
+    </body>
+</html>

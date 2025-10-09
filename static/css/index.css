@@ -1,0 +1,484 @@
+/* ==================== Estilos generales ==================== */
+body.bodyInicio {
+  margin: 0;
+  /* Fuente por defecto para párrafos o textos que no se especifiquen: Lato */
+  font-family: 'Lato', sans-serif;
+  background-color: #ffffff;  /* Fondo blanco */
+}
+
+/* ==================== Navbar (parte superior) ==================== */
+.header {
+  position: sticky; /* 👈 Permite que la navbar se "pegue" arriba */
+  top: 0;           /* 👈 La fija al borde superior de la ventana */
+  z-index: 1000;    /* 👈 Asegura que esté sobre otros elementos */
+  background-color: #56070c;  /* Mantén el fondo oscuro */
+  color: #ffffff;
+  padding: 10px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.nav-container {
+  max-width: 1200px; /* Ancho máximo del contenedor */
+  margin: 0 auto;
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;  /* Separa logo y navegación */
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.main-content {
+  padding-top: 80px; /* 👈 Para evitar que el contenido se esconda bajo la navbar fija */
+}
+
+.logo {
+  font-size: 35px;
+  font-weight: bold;
+  text-align: left;
+  margin-left: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.navbar {
+  text-align: right;
+  margin-right: 0;
+}
+
+.nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 15px;
+}
+
+/* ==================== FIN Navbar (parte superior) ==================== */
+
+/* ==================== BOTÓN DE UNIVERSE.IO ==================== */
+.btn-31 {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: button;
+  background-color: #350a06;
+  background-image: none;
+  color: #e5e5e5;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 100%;
+  font-weight: 900;
+  line-height: 1.5;
+  margin: 0;
+  padding: 1rem 2rem;
+  border: 1px solid transparent;
+  border-radius: 40px;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.btn-31:before {
+  --progress: 100%;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #170000;
+  border-radius: 40px;
+  clip-path: polygon(
+    100% 0,
+    var(--progress) var(--progress),
+    0 100%,
+    100% 100%
+  );
+  transition: clip-path 0.2s ease, -webkit-clip-path 0.2s ease;
+}
+
+.btn-31:hover:before {
+  --progress: 0%;
+}
+
+.btn-31 .text-container {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-31 .text {
+  display: block;
+  font-weight: 900;
+  mix-blend-mode: difference;
+  position: relative;
+}
+
+.btn-31:hover .text {
+  animation: move-up-alternate 0.3s ease forwards;
+}
+
+@keyframes move-up-alternate {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(80%); }
+  51%  { transform: translateY(-80%); }
+  100% { transform: translateY(0); }
+}
+
+/* ==================== FIN BOTÓN DE UNIVERSE.IO ==================== */
+
+/* ==================== Contenido principal ==================== */
+.main-content {
+  background-color: #ffffff;
+  text-align: center;
+  padding: 40px 20px 60px 20px;
+  min-height: calc(100vh - 100px);
+}
+
+.titulo {
+  font-size: 36px;
+  margin: 0 0 5px 0;
+  color: #333333;
+  font-family: 'Poppins', sans-serif;
+}
+
+.subtitulo {
+  font-size: 24px;
+  margin-top: 0;
+  color: #666666;
+  font-family: 'Lato', sans-serif;
+}
+
+/* ==================== Información de la empresa ==================== */
+.info-section {
+  padding: 40px 20px;
+  background-color: #fff;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  border-radius: 25px;
+  margin-bottom: 80px;
+}
+
+.info-container {
+  background-color: #f7f7f7;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ==================== FIN Información de la empresa ==================== */
+
+/* ==================== Carta de presentación (efecto 3D) ==================== */
+.card {
+  width: 100%;
+  max-width: 450px;
+  min-height: 350px;
+  perspective: 1000px;
+  margin: 0 auto;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.999s;
+}
+
+.card:hover .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  min-height: 320px;
+  backface-visibility: hidden;
+  padding: 20px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+.card-front {
+  background: linear-gradient(145deg, #8f3d38, #8f3d38);
+  color: #fff;
+  border: 8px solid #cb7169;
+  border-radius: 25px;
+  font-size: 26px;
+  transform: rotateY(0deg);
+}
+
+.card-back {
+  background: linear-gradient(145deg, #f1f3f5, #dee2e6);
+  color: #212529;
+  border: 8px solid #ced4da;
+  border-radius: 25px;
+  font-size: 18px;
+  transform: rotateY(180deg);
+}
+
+/* ==================== FIN Carta de presentación (efecto 3D) ==================== */
+
+/* ==================== Menú ==================== */
+.menu-section {
+  padding: 40px 20px;
+  background-color: #e9ecef;
+  margin-top: 80px;
+  border-radius: 25px;
+}
+
+.menu-section h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 32px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+.menu-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.menu-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  flex: 1;
+  min-width: 280px;
+  max-width: 340px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.menu-header {
+  text-align: center;
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+.menu-title {
+  font-size: 40px;
+  font-family: 'Poppins', sans-serif;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.menu-subtitle {
+  font-size: 18px;
+  font-family: 'Lato', sans-serif;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ==================== FIN Menú ==================== */
+
+/* ==================== Carta estilo productos HAMBURGUESA, PERROS Y EXTRAS ==================== */
+/* Contenedor principal de secciones como hamburguesas, hot dogs, extras */
+.wrap {
+  max-width: 1400px;  /* 👈 antes 1200px, más aire */
+  margin: 0 auto;
+  padding: 20px 40px; /* 👈 mayor padding horizontal */
+}
+
+/* CARTA: Desktop */
+/* Para hamburguesas: 3 columnas con tarjetas más anchas */
+.hamburguesas .column-2.carta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(380px, 1fr)); /* 👈 ancho mínimo incrementado */
+  gap: 40px 60px;
+  justify-content: center;
+}
+
+/* Hot dogs: tarjetas más anchas y bien distribuidas */
+.hotdogs .column-2.carta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 📱💻 adapta según el espacio */
+  gap: 30px 40px;          /* 🟦 Espacio entre productos */
+  justify-items: center;   /* 🧩 Centra cada tarjeta individualmente */
+  padding: 0 20px;         /* 📏 Espaciado interno horizontal */
+}
+
+.extras .column-2.carta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+}
+
+.plato-carta {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plato-carta:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.img-plato-carta {
+  flex-basis: 25%;
+  display: flex;
+  justify-content: center;
+}
+
+.img-plato-carta img {
+  max-width: 100px;
+  max-height: 75px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.title-plato-carta {
+  flex-basis: 60%;
+  padding: 0 1rem;
+  border-left: 1px solid #eaeaea;
+  border-right: 1px solid #eaeaea;
+}
+
+.title-plato-carta h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  font-family: 'Poppins', sans-serif;
+}
+
+.title-plato-carta p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-family: 'Lato', sans-serif;
+  color: #555;
+}
+
+.precio-plato-carta {
+  flex-basis: 15%;
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.wrap-title-section h2 {
+  text-align: center;
+  margin: 60px 0 30px;
+  font-size: 32px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+/* ==================== FIN Carta estilo productos HAMBURGUESA, PERROS Y EXTRAS ==================== */
+
+/* ==================== Adaptabilidad para pantallas medianas ==================== */
+@media (max-width: 992px) {
+  .nav-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  .main-content {
+    padding: 30px 15px;
+  }
+
+  .titulo {
+    font-size: 28px;
+  }
+
+  .subtitulo {
+    font-size: 18px;
+  }
+
+  .menu-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 90%;
+    max-width: 300px;
+  }
+
+  /* 🟩 Ajustamos hamburguesas a 2 columnas */
+  .hamburguesas .column-2.carta {
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+  }
+
+  /* 🟩 Hot dogs ahora en 2 columnas */
+  .hotdogs .column-2.carta {
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    padding: 0;
+  }
+}
+
+/* ==================== Adaptabilidad para pantallas pequeñas ==================== */
+@media (max-width: 576px) {
+  .titulo {
+    font-size: 22px;
+  }
+
+  .subtitulo {
+    font-size: 16px;
+  }
+
+  .nav-container {
+    padding: 5px 10px;
+  }
+
+  .btn-31 {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .info-section {
+    grid-template-columns: 1fr;
+    padding: 30px 10px;
+  }
+
+  .info-container {
+    padding: 15px;
+  }
+
+  .menu-item {
+    min-width: unset;
+    width: 90%;
+  }
+
+  iframe {
+    height: 200px;
+  }
+
+  /* 🟦 Una columna en celulares para todo */
+  .hamburguesas .column-2.carta,
+  .hotdogs .column-2.carta,
+  .extras .column-2.carta {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+}

@@ -1,0 +1,37 @@
+
+    <div id="loader" class="loader-container">
+      <div class="loader-content">
+        <!-- Letras animadas -->
+        <div class="trail">
+          <span class="letter">U</span>
+          <span class="letter">m</span>
+          <span class="letter">i</span>
+          <span class="letter">z</span>
+          <span class="letter">o</span>
+          <span class="letter">o</span>
+          <span class="letter">m</span>
+          <span class="letter">i</span>
+        </div>
+    
+        <!-- Barra de progreso justo debajo -->
+        <div class="progress-line">
+          <div class="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+    
+      <!-- Script para ocultar el loader -->
+      <script>
+        window.addEventListener("load", function () {
+          document.body.classList.add("loading");
+          setTimeout(() => {
+            const loader = document.getElementById("loader");
+            loader.style.transition = "opacity 0.8s ease";
+            loader.style.opacity = "0";
+            setTimeout(() => {
+              loader.style.display = "none";
+              document.body.classList.remove("loading");
+            }, 800);
+          }, 4500);
+        });
+      </script>  

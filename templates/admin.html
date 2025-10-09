@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administrador - EL AMIGO 7</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pedidoA.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loaderG.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  {% include 'components/loaderG.html' %}
+
+<!-- Panel lateral -->
+<div class="admin-panel">
+  <h2>EL AMIGO 7</h2>
+  <nav>
+    <a href="{{ url_for('ver_pedidos') }}">PEDIDOS</a>
+    <a href="{{ url_for('ver_clientes') }}">CLIENTES</a>
+    <a href="{{ url_for('ver_inventario') }}">INVENTARIO</a>
+    <a href="{{ url_for('PedidoSuc') }}">HACER PEDIDO</a>
+    <a href="{{ url_for('alta') }}">ALTA USUARIO</a>
+    <a href="{{ url_for('logout') }}" class="btn-31">
+      <span class="text-container"><span class="text">CERRAR SESIÓN</span></span>
+    </a>
+  </nav>
+</div>
+
+<!-- Contenido principal -->
+<div class="admin-content">
+
+  
+<div class="bienvenida-panel">
+  <h2><i class="fa-solid fa-apple-alt"></i> Fruteria y Abarrotes <i class="fa-solid fa-bread-slice"></i> <span>"El amigo 7"</span></h2>
+  <p>Fruta fresca todos los días</p>
+</div>
+
+<!-- ALERTAS DE STOCK -->
+{% if alertas_stock %}
+  <div class="contenedor-alertas-stock">
+    {% for alerta in alertas_stock %}
+      <div class="alerta-stock {{ alerta.tipo }}">
+        <button class="cerrar" onclick="this.parentElement.style.display='none';">&times;</button>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ alerta.mensaje }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- SECCION: PEDIDOS --> 
+{% if modo == "pedidos" %}
+<section class="seccion-pedidos">
+  <h3>GESTIÓN DE PEDIDOS</h3>
+
+  <form method="GET" class="form-busqueda-completa">
+    <div class="filtro-personalizado">
+      <span class="icono-filtro">⚙️</span>
+      <select name="tipo_estado">
+        <option value="" {% if not request.args.get('tipo_estado') %}selected{% endif %}>TODO</option>
+        <option value="E1" {% if request.args.get('tipo_estado') == 'E1' %}selected{% endif %}>ACEPTADO</option>
+        <option value="E2" {% if request.args.get('tipo_estado') == 'E2' %}selected{% endif %}>CANCELADO</option>
+        <option value="E3" {% if request.args.get('tipo_estado') == 'E3' %}selected{% endif %}>PENDIENTE</option>
+        <option value="E5" {% if request.args.get('tipo_estado') == 'E5' %}selected{% endif %}>ENTREGADO</option>
+      </select>
+    </div>
+
+    <input type="text" name="buscar_cel" placeholder="Buscar por número..." value="{{ request.args.get('buscar_cel', '') }}">
+    <button type="submit" title="Buscar">🔍</button>
+  </form>
+
+  <div class="tabla-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>CANTIDAD</th>
+          <th>IMPORTE</th>
+          <th>FECHA</th>
+          <th>TELÉFONO</th>
+          <th>ENTREGA</th>
+          <th>SOLICITUD</th>
+          <th>PAGO</th>
+          <th>ESTADO</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pedido in pedidos %}
+          {% if pedido.tipo_estado != 'E4' %}
+          <tr>
+            <!-- FORMULARIO para editar -->
+            <form method="POST" class="form-inline">
+              <input type="hidden" name="id_pedido" value="{{ pedido.id_pedido }}">
+              <input type="hidden" name="action" value="editar">
+
+              <td><span>{{ pedido.cantidad }}</span><input type="hidden" name="cantidad" value="{{ pedido.cantidad }}"></td>
+              <td><span>${{ "%.2f"|format(pedido.importe_g) }}</span><input type="hidden" name="importe" value="{{ pedido.importe_g }}"></td>
+              <td><span>{{ pedido.fecha }}</span><input type="hidden" name="fecha" value="{{ pedido.fecha }}"></td>
+              <td><span>{{ pedido.num_cel }}</span><input type="hidden" name="num_cel" value="{{ pedido.num_cel }}"></td>
+
+              <td>
+                <select name="tipo_entrega">
+                  <option value="DMC" {% if pedido.tipo_entrega == 'DMC' %}selected{% endif %}>DOMICILIO</option>
+                  <option value="PU" {% if pedido.tipo_entrega == 'PU' %}selected{% endif %}>PICK UP</option>
+                </select>
+              </td>
+              <td><span>{{ pedido.tipo_solicitud }}</span><input type="hidden" name="tipo_solicitud" value="{{ pedido.tipo_solicitud }}"></td>
+
+              <td>
+                <select name="tipo_pago">
+                  <option value="P1" {% if pedido.tipo_pago == 'P1' %}selected{% endif %}>EFECTIVO</option>
+                  <option value="P2" {% if pedido.tipo_pago == 'P2' %}selected{% endif %}>TARJETA</option>
+                </select>
+              </td>
+
+              <td>
+                <select name="tipo_estado">
+                  <option value="E1" {% if pedido.tipo_estado == 'E1' %}selected{% endif %}>ACEPTADO</option>
+                  <option value="E2" {% if pedido.tipo_estado == 'E2' %}selected{% endif %}>CANCELADO</option>
+                  <option value="E3" {% if pedido.tipo_estado == 'E3' %}selected{% endif %}>PENDIENTE</option>
+                  <option value="E5" {% if pedido.tipo_estado == 'E5' %}selected{% endif %}>ENTREGADO</option>
+                </select>
+              </td>
+
+              <td class="acciones">
+                <button type="submit" class="btn-accion editar" title="Guardar cambios">💾</button>
+            </form>
+
+                <!-- ELIMINAR si está cancelado (E2) -->
+                {% if pedido.tipo_estado == 'E2' %}
+                <form method="POST" class="form-inline">
+                  <input type="hidden" name="action" value="eliminar">
+                  <input type="hidden" name="id_pedido" value="{{ pedido.id_pedido }}">
+                  <button type="submit" class="btn-accion eliminar" title="Enviar a papelera">🗑️</button>
+                </form>
+                {% endif %}
+
+                <!-- DETALLES -->
+                <form method="POST" class="form-inline">
+                  <input type="hidden" name="action" value="detalles">
+                  <input type="hidden" name="id_pedido" value="{{ pedido.id_pedido }}">
+                  <button type="submit" class="btn-accion ver-mas" title="Detalles">➕</button>
+                </form>
+              </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+
+<!-- SECCIÓN DETALLES DEL PEDIDO -->
+{% if modo == 'detalles' and detalles %}
+<section class="detalle-pedido">
+  <h4>Detalles del pedido #{{ detalles[0].n_pedido }}</h4>
+  <div class="tabla-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>CANTIDAD</th>
+          <th>IMPORTE</th>
+          <th>PRODUCTO</th> 
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in detalles %}
+        <tr>
+          <td>{{ d.cantidad }}</td>
+          <td>${{ "%.2f"|format(d.importe_p) }}</td>
+          <td>{{ d.nombre }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Botón regresar -->
+  <div style="margin-top: 20px; text-align: center;">
+    <form method="GET">
+      <input type="hidden" name="modo" value="pedidos">
+      <button type="submit" class="btn-editar">🔙 Regresar</button>
+    </form>
+  </div>
+</section>
+{% endif %}
+
+
+<!-- FIN SECCION: PEDIDOS -->
+
+<!-- SECCION: CLIENTES -->
+{% if modo == "clientes" %}
+<section>
+  <h3>Gestión de Clientes</h3>
+
+  <!-- Buscador -->
+  <form method="GET" class="form-busqueda-completa">
+    <input type="text" name="buscar_cel" placeholder="Buscar por número..." value="{{ request.args.get('buscar_cel', '') }}">
+    <button type="submit" title="Buscar">🔍</button>
+  </form>
+
+  <!-- Botón para agregar nuevo cliente -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button type="button" class="btn-editar" onclick="abrirModalNuevoCliente()">➕ Agregar Cliente</button>
+  </div>
+
+  <!-- Tabla de clientes -->
+  <div class="tabla-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Celular</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Apodo</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cliente in clientes %}
+        <tr>
+          <form method="POST" action="{{ url_for('ver_clientes') }}" class="form-inline">
+            <input type="hidden" name="id_original" value="{{ cliente.id }}">
+
+             <td>{{ cliente.id}}</td>
+            <td>{{ cliente.nombre }}</td>
+            <td>{{ cliente.apellido }}</td>
+            <td><input type="text" name="Apodo" value="{{ cliente.apodo }}"></td>
+
+            <td>
+              <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <span>{{ cliente.direccion }}</span>
+                <button type="button" class="btn-accion abrir-modal" data-id="{{ cliente.id }}" title="Editar dirección">✏️</button>
+                <button type="button" class="btn-accion abrir-referencia" data-id="{{ cliente.id }}" title="Ver referencia">➕</button>
+              </div>
+            </td>
+
+            <td class="acciones">
+              <button type="submit" class="btn-accion">💾</button>
+            </td>
+          </form>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODALES DE DIRECCIÓN -->
+{% for cliente in clientes %}
+<div id="modal-{{ cliente.id }}" class="modal-cliente">
+  <div class="modal-cliente-content">
+    <span class="close cerrar-modal" data-id="{{ cliente.id }}">&times;</span>
+    <h3>Editar Dirección</h3>
+    <form method="POST" action="{{ url_for('editar_direccion') }}">
+      <input type="hidden" name="id_cliente" value="{{ cliente.id }}">
+
+      <label for="num_casa_{{ cliente.id }}">Número de casa:</label>
+      <input type="text" id="num_casa_{{ cliente.id }}" name="Num_casa" value="{{ cliente.num_casa or '' }}">
+
+      <label for="calle_{{ cliente.id }}">Calle:</label>
+      <input type="text" id="calle_{{ cliente.id }}" name="Calle" value="{{ cliente.calle or '' }}">
+
+      <label for="cruzamientos_{{ cliente.id }}">Cruzamientos:</label>
+      <input type="text" id="cruzamientos_{{ cliente.id }}" name="Cruzamientos" value="{{ cliente.cruzamientos or '' }}">
+
+      <label for="referencia_{{ cliente.id }}">Referencia:</label>
+      <input type="text" id="referencia_{{ cliente.id }}" name="Referencia" value="{{ cliente.referencia or '' }}">
+
+      <label for="colonia_{{ cliente.id }}">Colonia:</label>
+      <select id="colonia_{{ cliente.id }}" name="Colonia" class="select-box">
+        <option value="">Seleccionar colonia</option>
+        {% for c in colonias %}
+          <option value="{{ c.id_colonia }}" {% if cliente.colonia == c %}selected{% endif %}>{{ c.colonia }}</option>
+        {% endfor %}
+      </select>
+
+      <div class="modal-btn-group">
+        <button type="button" class="btn-editar cerrar-modal" data-id="{{ cliente.id }}">Cancelar</button>
+        <button type="submit" class="btn-editar">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+<!-- MODALES DE REFERENCIA -->
+  {% for cliente in clientes %}
+  <div id="modal-ref-{{ cliente.id }}" class="modal-cliente">
+  <div class="modal-cliente-content">
+    <span class="close cerrar-referencia" data-id="{{ cliente.id }}">&times;</span>
+    <h3>Referencia</h3>
+      <input type="hidden" name="id_cliente" value="{{ cliente.id }}">
+    <p style="text-align: center; font-size: 16px; color: #444;">
+      {{ cliente.referencia if cliente.referencia else "No se ha registrado una referencia para este cliente." }}
+    </p>
+    <div class="modal-btn-group" style="justify-content: center;">
+      <button type="button" class="btn-editar cerrar-referencia" data-id="{{ cliente.id }}">Cerrar</button>
+    </div>
+  </div>
+  </div>
+  {% endfor %}
+
+<!-- MODAL: AGREGAR CLIENTE -->
+<div id="modal-nuevo-cliente" class="modal-cliente">
+  <div class="modal-cliente-content">
+    <span class="close" onclick="cerrarModalNuevoCliente()">&times;</span>
+    <h3>Registrar Nuevo Cliente</h3>
+    <form method="POST" action="{{ url_for('crear_cliente') }}">
+      <label for="nuevo_celular">Número de teléfono:</label>
+      <input type="text" name="nuevo_celular" id="Celular" required pattern="\d{10}" maxlength="10">
+
+      <label for="nuevo_nombre">Nombre:</label>
+      <input type="text" name="nuevo_nombre" id="Nombre" required>
+
+      <label for="nuevo_apellido">Apellido:</label>
+      <input type="text" name="nuevo_apellido" id="Apellido" required>
+
+      <label for="nuevo_apodo">Apodo:</label>
+      <input type="text" name="nuevo_apodo" id="Apodo">
+
+      <label for="direccion_existente">Seleccionar dirección existente:</label>
+      <select name="direccion_existente" id="direccion_existente" required>
+        <option value="">Selecciona una dirección</option>
+        {% for d in direcciones %}
+          <option value="{{ d.id_dirreccion }}">
+            #{{ d.num_casa }} C.{{ d.calle }} X{{ d.cruzamientos }} ({{ d.colonia }})
+          </option>
+        {% endfor %}
+      </select>
+
+      <div class="modal-btn-group">
+        <button type="button" class="btn-editar" onclick="cerrarModalNuevoCliente()">Cancelar</button>
+        <button type="submit" class="btn-editar">Guardar Cliente</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- FIN SECCION: CLIENTES -->
+
+<!-- INICO SECCION: INVENNTARIO -->
+{% if modo == "inventario" %}
+<section>
+  <h3>Editar inventario</h3>
+    <!-- Buscador -->
+  <form method="GET" class="form-busqueda-completa">
+    <input type="text" name="buscar_id" placeholder="Buscar por id..." value="{{ request.args.get('buscar_id', '') }}">
+    <button type="submit" title="Buscar">🔍</button>
+    
+  </form> 
+    
+  <div class="tabla-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>NOMBRE</th>
+          <th>CANTIDAD</th>
+          <th>PRECIO</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for Producto in productos %}
+          <tr>
+            <form method="POST" action="{{ url_for('inventario_up') }}">
+              <td>
+                {{ Producto.id_producto }}
+                <input type="hidden" name="id_producto" value="{{ Producto.id_producto }}">
+              </td>
+              <td>{{ Producto.nombre }}</td>
+              <td><input type="number" name="cantidad" value="{{ Producto.cantidad }}" min="0" required></td>
+              <td><input type="number" step="0.01" name="precio" value="{{ Producto.precio }}" min="0" required></td>
+              <td class="acciones">
+                <button type="submit" class="btn-accion" title="Guardar">💾</button>
+                <button type="button" class="btn-accion" onclick="abrirModalEliminar('{{ Producto.id_producto }}')">🗑️</button>
+              </td>
+            </form>
+          </tr>
+          {% endfor %}
+        <!-- MODAL CONFIRMACIÓN ELIMINAR -->
+        <div id="modalEliminar" class="modal" style="display: none;">
+          <div class="modal-content">
+            <h2>¿Deseas eliminar este producto?</h2>
+            <form method="POST" action="{{ url_for('eliminar_producto') }}">
+              <input type="hidden" name="id_producto" id="idProductoEliminar">
+              <div class="modal-buttons">
+                <button type="submit" class="btn-confirmar">✅ Confirmar</button>
+                <button type="button" class="btn-cancelar" onclick="cerrarModalEliminar()">❌ Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </tbody>
+      
+              <!-- Botón para mostrar formulario de nuevo producto -->
+        <div style="margin-top: 20px; text-align: center;">
+          <button type="button" onclick="document.getElementById('formAgregar').style.display = 'block';" class="btn-editar">➕ Añadir producto</button>
+        </div>
+
+        <!-- Formulario de nuevo producto oculto por defecto -->
+        <div id="formAgregar" style="display: none; margin-top: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+          <h4>Agregar nuevo producto</h4>
+          <form method="POST" action="{{ url_for('agregar_producto') }}">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+              <input type="text" name="id_producto" placeholder="ID del producto" required>
+              <input type="text" name="nombre" placeholder="Nombre" required>
+              <input type="number" name="cantidad" placeholder="Cantidad" min="0" required>
+              <input type="number" step="0.01" name="precio" placeholder="Precio" min="0" required>
+            </div>
+            <div style="margin-top: 10px; text-align: center;">
+              <button type="submit" class="btn-editar">✅ Agregar</button>
+              <button type="button" onclick="document.getElementById('formAgregar').style.display = 'none';" class="btn-editar">❌ Cancelar</button>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+          </form>
+        </div>
+    </table>
+  </div>
+</section>
+
+{% endif %}
+
+<!--Hcaer Pedido-->
+
+{% if modo == "hacerpedido" %}
+    <section class="REALIZARPEDIDO">
+     <h3>Realizar pedido</h3>
+      
+
+<form id="pedidoForm" method="POST" action="{{ url_for('PedidoSuc') }}">
+  <div class="formulario-contenedor">
+
+    <div class="campo-container">
+      <label for="nombre">NOMBRE:</label>
+      <input type="text" class="input" name="nombre" id="nombre" required>
+    </div>
+
+    <div class="campo-container">
+      <label for="apellido">APELLIDO:</label>
+      <input type="text" class="input" name="apellido" id="apellido" required>
+    </div>
+
+    <div class="campo-container">
+      <label for="telefono">NÚMERO DE TELÉFONO:</label>
+      <input type="tel" class="input" name="telefono" id="telefono" required>
+    </div>
+
+    <div class="campo-container">
+      <label for="apodo">APODO:</label>
+      <input type="text" class="input" name="apodo" id="apodo">
+    </div>
+
+<div class="campo-container"> <label for="selectorProductos">Selecciona tus productos</label>
+   <select id="selectorProductos" class="input" onchange="agregarProducto()"> 
+    <option value="">Elige un producto</option> 
+    {% for producto in productos %} {% if producto.id_producto != 'EP' and producto.cantidad != 0 %}
+     <option value="{{ producto.id_producto }}" data-precio="{{ producto.precio }}" data-stock="{{ producto.cantidad }}">
+       {{ producto.nombre }} </option> {% endif %} {% endfor %} <
+       /select> </div> 
+       <div id="productosSeleccionados"></div>
+      </select>
+    </div>
+    
+    <div style="text-align:center;margin-top:20px;">
+      <button type="button" onclick="validarYMostrarResumen()" class="boton-enviar">Calcular Total</button>
+    </div>
+
+  </div>
+</form>
+
+<div id="modalResumen" class="modal">
+  <div class="modal-content">
+    <h2>Resumen del Pedido</h2>
+    <div id="detalleResumen"></div>
+    <div class="modal-buttons">
+      <button class="btn-confirmar" onclick="confirmarPedido()">Confirmar Pedido</button>
+      <button class="btn-cancelar" onclick="cerrarResumen()">Modificar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalConfirmado" class="modal">
+  <div class="modal-content">
+    <h2>Pedido Realizado</h2> 
+    <button class="btn-confirmar" onclick="cerrarConfirmado()">Cerrar</button>
+  </div>
+</div>
+  
+<!-- Modal de validación -->
+<div id="modalValidacion" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Porfavor de llenar todos los datos</h2>
+    <div id="detalleErroresValidacion"></div>
+    <div class="modal-buttons">
+      <button class="btn-confirmar" onclick="cerrarModalValidacion()">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SECCIÓN ALTA DE USUARIO -->
+{% if modo == 'alta' %}
+<section class="alta-usuario">
+  <h4>Alta de Usuario</h4>
+
+  <form method="POST" action="{{ url_for('alta') }}" class="form-alta">
+    <div class="campo-form">
+      <label for="nuevo_celular">Número de celular</label>
+      <input type="text" id="nuevo_celular" name="nuevo_celular" placeholder="Ej. 9991234567" required>
+    </div>
+
+    <div class="campo-form">
+      <label for="nuevo_apellido">Apellido</label>
+      <input type="text" id="nuevo_apellido" name="nuevo_apellido" placeholder="Ej. Pérez" required>
+    </div>
+
+    <div class="campo-form">
+      <label for="nuevo_nombre">Nombre</label>
+      <input type="text" id="nuevo_nombre" name="nuevo_nombre" placeholder="Ej. Juan" required>
+    </div>
+
+    <div class="campo-form">
+      <label for="direccion_existente">Dirección</label>
+      <select id="direccion_existente" name="direccion_existente" class="select-box" required>
+        <option value="">-- Selecciona una dirección --</option>
+        {% for dir in direcciones %}
+        <option value="{{ dir.id }}">{{ dir.descripcion }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn-editar">Guardar Cliente</button>
+  </form>
+</section>
+{% endif %}
+
+<script>
+    //Script clientes
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        // Abrir modal
+        document.querySelectorAll('.abrir-modal').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const modal = document.getElementById('modal-' + id);
+            if (modal) modal.style.display = 'flex';
+          });
+        });
+
+        // Cerrar modal con botón ❌ o botón Cancelar
+        document.querySelectorAll('.cerrar-modal').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const modal = document.getElementById('modal-' + id);
+            if (modal) modal.style.display = 'none';
+          });
+        });
+
+        // Cerrar modal al hacer clic fuera del contenido
+        document.querySelectorAll('.modal-cliente').forEach(modal => {
+          modal.addEventListener('click', e => {
+            if (e.target === modal) {
+              modal.style.display = 'none';
+            }
+          });
+        });
+      });
+      
+  // ✅ Agrega un producto al contenedor si no está repetido
+  function agregarProducto() {
+    const selector = document.getElementById("selectorProductos");
+    const contenedor = document.getElementById("productosSeleccionados");
+    const id = selector.value;
+    const nombre = selector.options[selector.selectedIndex].text;
+    const stock = selector.options[selector.selectedIndex].getAttribute("data-stock");
+
+    if (id && !document.getElementById("producto_" + id)) {
+      const div = document.createElement("div");
+      div.className = "producto-item";
+      div.id = "producto_" + id;
+      div.innerHTML = `
+        <div style="margin-top:10px;">
+          <strong>${nombre}</strong> 
+          <span style="color:gray; font-size: 0.9em;">(Stock: ${stock})</span><br>
+          <input type="hidden" name="productos[]" value="${id}">
+          <label for="cantidad_${id}">Cantidad:</label>
+          <input 
+            type="number" 
+            id="cantidad_${id}" 
+            name="cantidades[]" 
+            class="input" 
+            min="1" 
+            max="${stock}" 
+            value="1" 
+            style="max-width: 100px;" 
+            oninput="validarCantidad('${id}', ${stock})">
+          <button type="button" class="boton-eliminar" onclick="eliminarProducto('${id}')">❌</button>
+        </div>
+      `;
+      contenedor.appendChild(div);
+    }
+
+    selector.value = "";
+  }
+
+  // ✅ Valida que la cantidad esté dentro del rango permitido
+  function validarCantidad(id, stock) {
+    const input = document.getElementById("cantidad_" + id);
+    const valor = parseInt(input.value);
+    if (valor > stock) {
+      input.value = stock;
+    } else if (valor < 1 || isNaN(valor)) {
+      input.value = 1;
+    }
+  }
+
+  // ✅ Elimina el producto del contenedor
+  function eliminarProducto(id) {
+    const div = document.getElementById("producto_" + id);
+    if (div) div.remove();
+  }
+
+  // ✅ Muestra lista de errores en un modal
+  function mostrarErrores(listaErrores) {
+    const contenedor = document.getElementById("detalleErroresValidacion");
+    contenedor.innerHTML = "<ul>" + listaErrores.map(e => `<li>${e}</li>`).join("") + "</ul>";
+    document.getElementById("modalValidacion").style.display = "block";
+  }
+
+  // ✅ Cierra el modal de validación
+  function cerrarModalValidacion() {
+    document.getElementById("modalValidacion").style.display = "none";
+  }
+
+  // ✅ Valida datos, muestra resumen y modales
+  function validarYMostrarResumen() {
+    let errores = [];
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const productos = document.querySelectorAll('[name="productos[]"]');
+    const resumen = document.getElementById("detalleResumen");
+    resumen.innerHTML = "";
+
+    // Validaciones
+    if (!nombre) errores.push("El nombre es obligatorio.");
+    if (!apellido) errores.push("El apellido es obligatorio.");
+    if (!telefono) errores.push("El numero de teléfono es obligatorio.");
+    if (productos.length === 0) errores.push("Debes seleccionar al menos un producto.");
+
+    if (errores.length > 0) {
+      mostrarErrores(errores);
+      return;
+    }
+
+    // Mostrar resumen si no hay errores
+    let total = 0;
+    productos.forEach(prod => {
+      const id = prod.value;
+      const cantidad = parseInt(document.getElementById(`cantidad_${id}`).value);
+      const nombreProducto = document.querySelector(`#producto_${id} strong`).innerText;
+      const precio = parseFloat(document.querySelector(`#selectorProductos option[value='${id}']`)?.dataset.precio || 0);
+      const subtotal = precio * cantidad;
+      total += subtotal;
+
+      resumen.innerHTML += `<p><strong>${nombreProducto}</strong> x ${cantidad} = $${subtotal.toFixed(2)}</p>`;
+    });
+
+    resumen.innerHTML += `<hr><h3>Total a pagar: $${total.toFixed(2)}</h3>`;
+    document.getElementById("modalResumen").style.display = "block";
+
+    // Mostrar modal de transferencia si aplica
+    const metodoPago = document.querySelector('input[name="metodoPago"]:checked')?.value;
+    if (metodoPago === "P2") {
+      document.getElementById("modalTransferencia").style.display = "block";
+    }
+  }
+
+  // ✅ Confirma el pedido y muestra mensaje final
+    function confirmarPedido() {
+      document.getElementById("modalResumen").style.display = "none";
+      document.getElementById("pedidoForm").submit();  // 🔥 Esto envía el pedido al backend
+    }
+
+  // ✅ Cierra el resumen y limpia el formulario
+  function cerrarResumen() {
+    document.getElementById("modalResumen").style.display = "none";
+  }
+
+  // ✅ Cierra el modal de pedido confirmado y resetea todo
+  function cerrarConfirmado() {
+    document.getElementById("modalConfirmado").style.display = "none";
+    document.getElementById("pedidoForm").reset();
+    document.getElementById("productosSeleccionados").innerHTML = "";
+  }
+
+  // ✅ Cierra el modal de datos de transferencia
+  function cerrarModalTransferencia() {
+    document.getElementById("modalTransferencia").style.display = "none";
+  }
+</script>
+
+{% endif %}
+
+
+</div>
+<script>
+//Script clientes (mueve todo este bloque aquí afuera)
+  document.addEventListener('DOMContentLoaded', () => {
+    // Abrir modal
+    document.querySelectorAll('.abrir-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const modal = document.getElementById('modal-' + id);
+        if (modal) modal.style.display = 'flex';
+      });
+    });
+
+    // Cerrar modal con botón ❌ o botón Cancelar
+    document.querySelectorAll('.cerrar-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const modal = document.getElementById('modal-' + id);
+        if (modal) modal.style.display = 'none';
+      });
+    });
+
+    // Cerrar modal al hacer clic fuera del contenido
+    document.querySelectorAll('.modal-cliente').forEach(modal => {
+      modal.addEventListener('click', e => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  });
+
+
+  function abrirModalNuevoCliente() {
+    const modal = document.getElementById('modal-nuevo-cliente');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function cerrarModalNuevoCliente() {
+    const modal = document.getElementById('modal-nuevo-cliente');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // Cierra el modal si se hace clic fuera del contenido
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modal-nuevo-cliente');
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+          cerrarModalNuevoCliente();
+        }
+      });
+    }
+  });
+
+
+  function abrirModalNuevoCliente() {
+    const modal = document.getElementById('modal-nuevo-cliente');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function cerrarModalNuevoCliente() {
+    const modal = document.getElementById('modal-nuevo-cliente');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // Modal editar dirección
+  document.querySelectorAll('.abrir-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-' + id);
+      if (modal) modal.style.display = 'flex';
+    });
+  });
+
+  document.querySelectorAll('.cerrar-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-' + id);
+      if (modal) modal.style.display = 'none';
+    });
+  });
+
+  // Modal ver referencia
+  document.querySelectorAll('.abrir-referencia').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-ref-' + id);
+      if (modal) modal.style.display = 'flex';
+    });
+  });
+
+  document.querySelectorAll('.cerrar-referencia').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-ref-' + id);
+      if (modal) modal.style.display = 'none';
+    });
+  });
+
+
+  </script>
+  {% with mensajes = get_flashed_messages() %}
+  {% if mensajes %}
+    <script>
+      window.onload = function() {
+        {% for mensaje in mensajes %}
+          mostrarNotificacion("{{ mensaje }}", "{{ categoria }}");
+        {% endfor %}
+      }
+    </script>
+  {% endif %}
+{% endwith %}
+
+</body>
+
+<script>
+  function abrirModalEliminar(id) {
+    document.getElementById('idProductoEliminar').value = id;
+    document.getElementById('modalEliminar').style.display = 'flex';
+  }
+
+  function cerrarModalEliminar() {
+    document.getElementById('modalEliminar').style.display = 'none';
+  }
+</script>
+
+<script>
+  function mostrarNotificacion(mensaje, categoria) {
+    const contenedor = document.getElementById('contenedor-notificaciones');
+
+    const noti = document.createElement('div');
+    noti.className = 'notificacion ' + categoria; 
+    noti.innerHTML = `
+      <span>${mensaje}</span>
+      <button class="cerrar" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    contenedor.appendChild(noti);
+  }
+</script>
+
+  
+  
+</html>
