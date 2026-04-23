@@ -1,4 +1,6 @@
 pip install mysql-connector-python==8.0.33 Flask==3.1.0 Flask-Login==0.6.3 Werkzeug==3.1.3 NO SE USA POR EL MOMENTO
 pip install Flask==3.1.0 Flask-Login==0.6.3 Werkzeug==3.1.3
 pip install psycopg2-binary
-
+pip install pyotp
+pip install waitress
+pip install qrcode[pil]

@@ -20,13 +20,29 @@
     <a href="{{ url_for('ver_pedidos') }}">PEDIDOS</a>
     <a href="{{ url_for('ver_clientes') }}">CLIENTES</a>
     <a href="{{ url_for('ver_inventario') }}">INVENTARIO</a>
+     {% if tipoadmin in [0,1,2] %}
     <a href="{{ url_for('PedidoSuc') }}">HACER PEDIDO</a>
-    <a href="{{ url_for('alta') }}">ALTA USUARIO</a>
+     {% endif %}
+    <a href="{{ url_for('corte') }}">CORTE DEL DÍA</a>
+    {% if tipoadmin in [0,1] %}
+      <a href="{{ url_for('alta') }}">ALTA USUARIO</a>
+    {% endif %}
+    <a href="{{ url_for('gasto') }}">GASTO</a>
     <a href="{{ url_for('logout') }}" class="btn-31">
       <span class="text-container"><span class="text">CERRAR SESIÓN</span></span>
     </a>
+    <h4 class="info-usuario-borde">
+      Usuario: {{ current_user.usuario }} <br>
+      Cargo:
+      {% if current_user.tipo == '0' %}Gerente{% endif %}
+      {% if current_user.tipo == '1' %}Administrador{% endif %}
+      {% if current_user.tipo == '2' %}Cajero{% endif %}
+      {% if current_user.tipo == '3' %}Lector{% endif %}
+    </h4>
   </nav>
 </div>
+
+
 
 <!-- Contenido principal -->
 <div class="admin-content">
@@ -37,24 +53,184 @@
   <p>Fruta fresca todos los días</p>
 </div>
 
-<!-- ALERTAS DE STOCK -->
-{% if alertas_stock %}
-  <div class="contenedor-alertas-stock">
-    {% for alerta in alertas_stock %}
-      <div class="alerta-stock {{ alerta.tipo }}">
-        <button class="cerrar" onclick="this.parentElement.style.display='none';">&times;</button>
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        {{ alerta.mensaje }}
+{% if modo == "alta" %}
+   {% if tipoadmin not in [0, 1] %}
+  <section class="sin-permisos">
+    <div class="permiso-denegado">
+      <h3>❌ Acceso Denegado</h3>
+      <p>No tienes permisos para gestionar usuarios.</p>
+      <p>Tu tipo de usuario ({{ tipoadmin }}) no está autorizado para esta acción.</p>
+      <p>Solo los administradores (tipo 0 y 1) pueden acceder a esta sección.</p>
+    </div>
+  </section>
+  {% else %}
+  {% if usuarios %}
+  <div class="tabla-usuarios-wrapper">
+    <h3>Usuarios registrados</h3>
+
+    <!-- NOTIFICACIONES PARA LA TABLA - POSICIONADAS ARRIBA -->
+    <div class="notificaciones-tabla">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {% if 'tabla' in category %}
+              <div class="notificacion {{ category }}">
+                {{ message }}
+                <button class="cerrar" onclick="this.parentElement.remove()">×</button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+        <table class="tabla-usuarios">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Nueva contraseña</th>
+              <th>Tipo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in usuarios %}
+              <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.usuario }}</td>
+                {% if tipoadmin == 0%}
+                  {% if u.tipo in ['1', '2', '3']%}
+                    <form method="POST" action="{{ url_for('alta') }}" class="form-inline" style="margin:0; display:contents;">
+                      <input type="hidden" name="usuario_mod" value="{{ u.usuario }}">
+                      <td>
+                        <input type="password" name="nueva_contrasena" placeholder="Nueva contraseña" style="width: 140px;">
+                      </td>
+                      <td>
+                        <select name="nuevo_tipo">
+                          <option value="1" {% if u.tipo == '1' %}selected{% endif %}>Administrador</option>
+                          <option value="2" {% if u.tipo == '2' %}selected{% endif %}>Cajero</option>
+                          <option value="3" {% if u.tipo == '3' %}selected{% endif %}>Lector</option>
+                        </select>
+                      </td>
+                      <td style="display: flex; gap: 8px; justify-content: center;">
+                        <button type="submit" class="btn-accion">Guardar</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('alta') }}" style="display:inline;">
+                      <input type="hidden" name="usuario_del" value="{{ u.usuario }}">
+                      <button type="submit" class="btn-accion btn-eliminar">Eliminar</button>
+                    </form>
+                      </td>
+                  {% endif %}
+                {% else %}
+                  {% if u.tipo in ['2', '3']%}
+                    <form method="POST" action="{{ url_for('alta') }}" class="form-inline" style="margin:0; display:contents;">
+                      <input type="hidden" name="usuario_mod" value="{{ u.usuario }}">
+                      <td>
+                        <input type="password" name="nueva_contrasena" placeholder="Nueva contraseña" style="width: 140px;">
+                      </td>
+                      <td>
+                        <select name="nuevo_tipo">
+                          <option value="1" {% if u.tipo == '1' %}selected{% endif %}>Administrador</option>
+                          <option value="2" {% if u.tipo == '2' %}selected{% endif %}>Cajero</option>
+                          <option value="3" {% if u.tipo == '3' %}selected{% endif %}>Lector</option>
+                        </select>
+                      </td>
+                      <td style="display: flex; gap: 8px; justify-content: center;">
+                        <button type="submit" class="btn-accion">Guardar</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('alta') }}" style="display:inline;">
+                      <input type="hidden" name="usuario_del" value="{{ u.usuario }}">
+                      <button type="submit" class="btn-accion btn-eliminar">Eliminar</button>
+                    </form>
+                      </td>
+                  {% else %}
+                    <td></td>
+                    <td>Administrador</td>
+                    <td><span style="color: #888;">No modificable</span></td>
+                  {% endif %}
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-    {% endfor %}
+    {% endif %}
+
+
+  <div class="form-alta-usuario">
+    <h3>Crear usuario</h3>
+
+  <div class="notificaciones-formulario">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {% if 'alta' in category %}
+              <div class="notificacion {{ category }}">
+                {{ message }}
+                <button class="cerrar" onclick="this.parentElement.remove()">×</button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <form method="POST" action="{{ url_for('alta') }}">
+      <div class="grupo-campo">
+        <label for="identificador">Identificador</label>
+      <input type="text" name="identificador" id="identificador" required pattern="\d{10}"  maxlength="10" inputmode="numeric" placeholder="Número de telefono">
+      </div>
+      <div class="grupo-campo">
+        <label for="usuario">Usuario</label>
+        <input type="text" name="usuario" id="usuario" required minlength="4">
+      </div>
+      <div class="grupo-campo">
+        <label for="password">Contraseña</label>
+        <input type="password" name="password" id="password" required>
+      </div>
+      <div class="grupo-campo">
+        <label for="tipo">Tipo de usuario</label>
+        <select name="tipo" id="tipo" required>
+          <option value="" disabled selected>Selecciona el tipo</option>
+          {% if tipoadmin in [0] %}
+            <option value="1">Administrador</option>
+          {% endif %}
+          <option value="2">Cajero</option>
+          <option value="3">Lector</option> 
+        </select>
+      </div>
+      <button type="submit" class="guardar-btn">Guardar usuario</button>    
+    </form>
+      {% if img_b64 %}
+        <h4>Escanea este QR para configurar Google Authenticator:</h4>
+        <img src="data:image/png;base64,{{ img_b64 }}">
+        <p>Si no puedes escanearlo, introduce esta clave: {{ secret }}</p>
+      {% endif %}
   </div>
+  {% endif %}
 {% endif %}
+
+
 
 <!-- SECCION: PEDIDOS --> 
 {% if modo == "pedidos" %}
 <section class="seccion-pedidos">
   <h3>GESTIÓN DE PEDIDOS</h3>
 
+<!-- Mostrar mensajes flash -->
+  <div class="notificaciones-pedidos">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+            <button type="button" class="close" onclick="this.parentElement.style.display='none'">×</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  
   <form method="GET" class="form-busqueda-completa">
     <div class="filtro-personalizado">
       <span class="icono-filtro">⚙️</span>
@@ -79,8 +255,7 @@
           <th>IMPORTE</th>
           <th>FECHA</th>
           <th>TELÉFONO</th>
-          <th>ENTREGA</th>
-          <th>SOLICITUD</th>
+
           <th>PAGO</th>
           <th>ESTADO</th>
           <th>ACCIONES</th>
@@ -100,14 +275,7 @@
               <td><span>{{ pedido.fecha }}</span><input type="hidden" name="fecha" value="{{ pedido.fecha }}"></td>
               <td><span>{{ pedido.num_cel }}</span><input type="hidden" name="num_cel" value="{{ pedido.num_cel }}"></td>
 
-              <td>
-                <select name="tipo_entrega">
-                  <option value="DMC" {% if pedido.tipo_entrega == 'DMC' %}selected{% endif %}>DOMICILIO</option>
-                  <option value="PU" {% if pedido.tipo_entrega == 'PU' %}selected{% endif %}>PICK UP</option>
-                </select>
-              </td>
-              <td><span>{{ pedido.tipo_solicitud }}</span><input type="hidden" name="tipo_solicitud" value="{{ pedido.tipo_solicitud }}"></td>
-
+          
               <td>
                 <select name="tipo_pago">
                   <option value="P1" {% if pedido.tipo_pago == 'P1' %}selected{% endif %}>EFECTIVO</option>
@@ -127,7 +295,6 @@
               <td class="acciones">
                 <button type="submit" class="btn-accion editar" title="Guardar cambios">💾</button>
             </form>
-
                 <!-- ELIMINAR si está cancelado (E2) -->
                 {% if pedido.tipo_estado == 'E2' %}
                 <form method="POST" class="form-inline">
@@ -136,7 +303,6 @@
                   <button type="submit" class="btn-accion eliminar" title="Enviar a papelera">🗑️</button>
                 </form>
                 {% endif %}
-
                 <!-- DETALLES -->
                 <form method="POST" class="form-inline">
                   <input type="hidden" name="action" value="detalles">
@@ -145,6 +311,7 @@
                 </form>
               </td>
           </tr>
+
           {% endif %}
         {% endfor %}
       </tbody>
@@ -156,7 +323,7 @@
 <!-- SECCIÓN DETALLES DEL PEDIDO -->
 {% if modo == 'detalles' and detalles %}
 <section class="detalle-pedido">
-  <h4>Detalles del pedido #{{ detalles[0].n_pedido }}</h4>
+   <h4>Detalles del Pedido</h4>
   <div class="tabla-responsive">
     <table>
       <thead>
@@ -178,12 +345,9 @@
     </table>
   </div>
 
-  <!-- Botón regresar -->
+ <!-- Botón regresar más simple -->
   <div style="margin-top: 20px; text-align: center;">
-    <form method="GET">
-      <input type="hidden" name="modo" value="pedidos">
-      <button type="submit" class="btn-editar">🔙 Regresar</button>
-    </form>
+    <a href="{{ url_for('ver_pedidos') }}" class="btn-editar">🔙 Regresar</a>
   </div>
 </section>
 {% endif %}
@@ -196,6 +360,19 @@
 <section>
   <h3>Gestión de Clientes</h3>
 
+<div class="notificaciones-clientes">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+            <button type="button" class="close" onclick="this.parentElement.style.display='none'">×</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  
   <!-- Buscador -->
   <form method="GET" class="form-busqueda-completa">
     <input type="text" name="buscar_cel" placeholder="Buscar por número..." value="{{ request.args.get('buscar_cel', '') }}">
@@ -238,7 +415,6 @@
                 <button type="button" class="btn-accion abrir-referencia" data-id="{{ cliente.id }}" title="Ver referencia">➕</button>
               </div>
             </td>
-
             <td class="acciones">
               <button type="submit" class="btn-accion">💾</button>
             </td>
@@ -249,6 +425,100 @@
     </table>
   </div>
 </section>
+
+<!-- MODALES DE DIRECCIÓN -->
+{% for cliente in clientes %}
+<div id="modal-{{ cliente.id }}" class="modal-cliente">
+  <div class="modal-cliente-content">
+    <span class="close cerrar-modal" data-id="{{ cliente.id }}">&times;</span>
+    <h3>Editar Dirección</h3>
+    <form method="POST" action="{{ url_for('editar_direccion') }}">
+      <input type="hidden" name="id_cliente" value="{{ cliente.id }}">
+
+      <label for="num_casa_{{ cliente.id }}">Número de casa:</label>
+      <input type="text" id="num_casa_{{ cliente.id }}" name="Num_casa" value="{{ cliente.num_casa or '' }}">
+
+      <label for="calle_{{ cliente.id }}">Calle:</label>
+      <input type="text" id="calle_{{ cliente.id }}" name="Calle" value="{{ cliente.calle or '' }}">
+
+      <label for="cruzamientos_{{ cliente.id }}">Cruzamientos:</label>
+      <input type="text" id="cruzamientos_{{ cliente.id }}" name="Cruzamientos" value="{{ cliente.cruzamientos or '' }}">
+
+      <label for="referencia_{{ cliente.id }}">Referencia:</label>
+      <input type="text" id="referencia_{{ cliente.id }}" name="Referencia" value="{{ cliente.referencia or '' }}">
+
+      <label for="colonia_{{ cliente.id }}">Colonia:</label>
+      <select id="colonia_{{ cliente.id }}" name="Colonia" class="select-box">
+        <option value="">Seleccionar colonia</option>
+        {% for c in colonias %}
+          <option value="{{ c.ID_colonia }}" {% if cliente.colonia == c %}selected{% endif %}>{{ c.Colonia }}</option>
+        {% endfor %}
+      </select>
+
+      <div class="modal-btn-group">
+        <button type="button" class="btn-editar cerrar-modal" data-id="{{ cliente.id }}">Cancelar</button>
+        <button type="submit" class="btn-editar">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+<!-- MODALES DE REFERENCIA -->
+  {% for cliente in clientes %}
+  <div id="modal-ref-{{ cliente.id }}" class="modal-cliente">
+  <div class="modal-cliente-content">
+    <span class="close cerrar-referencia" data-id="{{ cliente.id }}">&times;</span>
+    <h3>Referencia</h3>
+      <input type="hidden" name="id_cliente" value="{{ cliente.id }}">
+    <p style="text-align: center; font-size: 16px; color: #444;">
+      {{ cliente.referencia if cliente.referencia else "No se ha registrado una referencia para este cliente." }}
+    </p>
+    <div class="modal-btn-group" style="justify-content: center;">
+      <button type="button" class="btn-editar cerrar-referencia" data-id="{{ cliente.id }}">Cerrar</button>
+    </div>
+  </div>
+  </div>
+  {% endfor %}
+
+<script>
+ 
+  // Modal editar dirección
+  document.querySelectorAll('.abrir-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-' + id);
+      if (modal) modal.style.display = 'flex';
+    });
+  });
+
+  document.querySelectorAll('.cerrar-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-' + id);
+      if (modal) modal.style.display = 'none';
+    });
+  });
+
+  // Modal ver referencia
+  document.querySelectorAll('.abrir-referencia').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-ref-' + id);
+      if (modal) modal.style.display = 'flex';
+    });
+  });
+
+  document.querySelectorAll('.cerrar-referencia').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const modal = document.getElementById('modal-ref-' + id);
+      if (modal) modal.style.display = 'none';
+    });
+  });
+
+</script>
+
 
 <!-- MODALES DE DIRECCIÓN -->
 {% for cliente in clientes %}
@@ -375,7 +645,7 @@
                 <input type="hidden" name="id_producto" value="{{ Producto.id_producto }}">
               </td>
               <td>{{ Producto.nombre }}</td>
-              <td><input type="number" name="cantidad" value="{{ Producto.cantidad }}" min="0" required></td>
+              <td><input type="number" name="cantidad" value="{{ Producto.cantidad }}" min="0" step="0.001"  required></td>
               <td><input type="number" step="0.01" name="precio" value="{{ Producto.precio }}" min="0" required></td>
               <td class="acciones">
                 <button type="submit" class="btn-accion" title="Guardar">💾</button>
@@ -416,7 +686,7 @@
               <input type="number" step="0.01" name="precio" placeholder="Precio" min="0" required>
             </div>
             <div style="margin-top: 10px; text-align: center;">
-              <button type="submit" class="btn-editar">✅ Agregar</button>
+              <button type="submit" class="btn-editar"> Agregar</button>
               <button type="button" onclick="document.getElementById('formAgregar').style.display = 'none';" class="btn-editar">❌ Cancelar</button>
             </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -437,52 +707,264 @@
 
 {% endif %}
 
-<!--Hcaer Pedido-->
+  <!-- Campo para gasto -->
+{% if modo == "gasto" %}
+<section class="gasto">
+ <form method="POST" action="{{ url_for('gasto') }}">
+   
+  <div class="campo-container">
+  <label for="descripcion_corte">Descripción:</label>
+  <select id="descripcion_corte" name="descripcion_corte" required>
+        <option value="">Selecciona un gasto</option>
+        {% for gasto in gastos %}
+          <option value="{{ gasto.id_gasto }}">{{ gasto.descripcion }}</option>
+        {% endfor %}
+  </select>
+  </div>
+      <div class="campo-container">
+      <label for="monto">Monto:</label>
+      <input type="number" id="monto" name="monto" required placeholder="Ingresa el monto">
+    </div> 
+
+    <div class="campo-container">
+    <button type="submit" class="boton-agregar" id="btnGuardar">Guardar</button>
+  </div>
+  </form>
+  
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+   <!-- Botón para abrir el modal de proveedor -->
+  <div class="campo-container">
+    <button type="button" class="boton-agregar" id="btnProveedor">Agregar proveedor</button>
+  </div>
+
+  <div id="modalProveedor" class="modal">
+  <div class="modal-contenido">
+    <span class="cerrar" id="cerrarModal">&times;</span>
+    <h2>Agregar nuevo proveedor</h2>
+
+
+    <form method="POST" action="{{ url_for('gasto') }}">
+      <div class="campo-container">
+        <label for="nombre_proveedor">Nombre del proveedor:</label>
+       <input type="text" id="nombre_proveedor" name="nombre_proveedor" > 
+      </div>
+
+      <div class="campo-container">
+        <button type="submit" class="boton-agregar">Guardar proveedor</button>
+      </div>
+    </form>
+  </div>
+  </div>
+
+<!-- Botón para ver detalles -->
+<div class="campo-container">
+  <button type="button" class="boton-agregar" id="btnVerGastos">
+    Ver detalles de gastos
+  </button>
+</div>
+
+<!-- Modal de detalles -->
+<div id="modalGastos" class="modal">
+  <div class="modal-contenido">
+    <span class="cerrar" id="cerrarModalGastos">&times;</span>
+    <h2>Detalles de gastos</h2>
+
+    <table class="tabla-gastos">
+      <thead>
+        <tr>
+          <th>Descripción</th>
+          <th>Monto</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in gastos_detalle %}
+          <tr>
+            <td>{{ g.descripcion }}</td>
+            <td>${{ g.monto }}</td>
+            <td>{{ g.fecha }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="campo-container total-gastos">
+      <strong>Total de gastos: </strong> ${{ total_gastos }}
+    </div>
+  </div>
+</div>
+
+
+
+</section>
+{% endif %}
+
+  <!-- Fin de gasto -->
+
+  <!-- Campo para corte  -->
+{% if modo == "corte" %}
+
+  <form method="POST" action="{{ url_for('corte') }}" class="form-corte">
+    
+<div class="corte-card">
+  <h2 class="titulo-corte"> Corte del Día</h2>
+
+  <div class="campo-container">
+    <label for="descripcion">Descripción:</label>
+    <input type="text" id="descripcion" name="descripcion" class="input-corte" placeholder="Ingresa una descripción">
+  </div>
+
+  <div class="totales">
+    <div class="total-item ventas">
+      <span class="label">Total de ventas del día:</span>
+      <span class="valor">
+        {% if VentaDelDia and VentaDelDia > 0 %}
+          ${{ VentaDelDia }}
+        {% else %}
+          No hay ventas hoy
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="total-item gastos">
+      <span class="label">Total de gastos del día:</span>
+      <span class="valor">
+        {% if GastosDelDia and GastosDelDia > 0 %}
+          ${{ GastosDelDia }}
+        {% else %}
+          Sin gastos registrados
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="total-item neto">
+      <span class="label">Total neto:</span>
+      <span class="valor total">
+        {% if Total and Total > 0 %}
+          ${{ Total }}
+        {% else %}
+          -
+        {% endif %}
+      </span>
+    </div>
+  </div>
+</div>
+
+{% if Error %}
+  <div class="Error">
+    {{ Error }}
+  </div>
+{% endif %}
+
+
+    </div>
+    
+
+    <!-- Botón de realizar corte -->
+    <div style="text-align:center; margin-top:20px;">
+      <button type="submit" class="btn-corte">Realizar Corte</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+
+
+
 
 {% if modo == "hacerpedido" %}
+
+  {% if current_user.tipo|int not in [0, 1, 2] %}
+    <section class="sin-permisos">
+        <div class="permiso-denegado">
+            <h3>❌ Acceso Denegado</h3>
+            <p>No tienes permisos para realizar pedidos.</p>
+            <p>Tu tipo de usuario ({{ current_user.tipo }}) no está autorizado para esta acción.</p>
+            <p>Contacta al administrador si necesitas acceso.</p>
+        </div>
+    </section>
+    {% else %}
+
     <section class="REALIZARPEDIDO">
      <h3>Realizar pedido</h3>
       
+<!-- Mostrar notificaciones de flash messages -->
+    <div class="notificaciones-pedido">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category in ['pedido_success', 'pedido_error', 'pedido_warning'] %}
+                    <div class="notificacion {{ category }}">
+                        <span>{{ message }}</span>
+                        <button class="cerrar" onclick="this.parentElement.style.display='none'">×</button>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 
 <form id="pedidoForm" method="POST" action="{{ url_for('PedidoSuc') }}">
   <div class="formulario-contenedor">
 
-    <div class="campo-container">
-      <label for="nombre">NOMBRE:</label>
-      <input type="text" class="input" name="nombre" id="nombre" required>
-    </div>
+  <div class="campo-container"> 
+    <label for="telefono">NUMERO DE TELEFONO:</label>
+    <input type="number" class="input" name="telefono" id="telefono"
+      value="{{ cliente.id_cel if cliente else '' }}" required>
+    <button type="button" class="boton-agregar" id="buscarCliente" name="accion">Buscar</button>
+ </div>
+  <div class="campo-container">
+  <label for="nombre">NOMBRE:</label>
+  <input type="text" class="input" name="nombre" id="nombre"
+         value="{{ cliente.nombre if cliente else '' }}">
+</div>
 
-    <div class="campo-container">
-      <label for="apellido">APELLIDO:</label>
-      <input type="text" class="input" name="apellido" id="apellido" required>
-    </div>
+<div class="campo-container">
+  <label for="apellido">APELLIDO:</label>
+  <input type="text" class="input" name="apellido" id="apellido"
+         value="{{ cliente.apellido if cliente else '' }}">
+</div>
 
-    <div class="campo-container">
-      <label for="telefono">NÚMERO DE TELÉFONO:</label>
-      <input type="tel" class="input" name="telefono" id="telefono" required>
-    </div>
+<div class="campo-container">
+  <label for="apodo">APODO:</label>
+  <input type="text" class="input" name="apodo" id="apodo"
+         value="{{ cliente.apodo if cliente else '' }}">
+</div>
 
-    <div class="campo-container">
-      <label for="apodo">APODO:</label>
-      <input type="text" class="input" name="apodo" id="apodo">
-    </div>
 
-<div class="campo-container"> <label for="selectorProductos">Selecciona tus productos</label>
-   <select id="selectorProductos" class="input" onchange="agregarProducto()"> 
-    <option value="">Elige un producto</option> 
-    {% for producto in productos %} {% if producto.id_producto != 'EP' and producto.cantidad != 0 %}
-     <option value="{{ producto.id_producto }}" data-precio="{{ producto.precio }}" data-stock="{{ producto.cantidad }}">
-       {{ producto.nombre }} </option> {% endif %} {% endfor %} <
-       /select> </div> 
-       <div id="productosSeleccionados"></div>
-      </select>
-    </div>
-    
-    <div style="text-align:center;margin-top:20px;">
-      <button type="button" onclick="validarYMostrarResumen()" class="boton-enviar">Calcular Total</button>
-    </div>
+<div class="campo-container">
+  <label for="inputIdProducto">ID de producto:</label>
+  <input type="text" class="input" id="inputIdProducto"  oninput="verificarInput()">
+  <button type="button" class="boton-agregar" id="btnAgregar" onclick="agregarProducto()" disabled>Agregar</button>
+</div>
 
+
+<div id="productosSeleccionados"></div>
+
+<!-- Modal de error personalizado -->
+<div id="modalMensaje" class="modal" style="display: none;">
+  <div class="modal-contenido">
+    <p id="textoModal" style="font-weight: bold; font-size: 1.1em; margin-bottom: 18px; color: #000000;">
+      <!-- Aquí se actualiza el texto dinámicamente -->
+    </p>
+    <button type="button" class="boton-aceptar" onclick="cerrarModal()">Aceptar</button>
   </div>
+</div>
+  <button type="button" onclick="validarYMostrarResumen()" class="boton-enviar" value="guardar" >Calcular Total</button>
+</div>
+
+</div>
 </form>
 
 <div id="modalResumen" class="modal">
@@ -514,110 +996,126 @@
   </div>
 </div>
 
-<!-- SECCIÓN ALTA DE USUARIO -->
-{% if modo == 'alta' %}
-<section class="alta-usuario">
-  <h4>Alta de Usuario</h4>
 
-  <form method="POST" action="{{ url_for('alta') }}" class="form-alta">
-    <div class="campo-form">
-      <label for="nuevo_celular">Número de celular</label>
-      <input type="text" id="nuevo_celular" name="nuevo_celular" placeholder="Ej. 9991234567" required>
-    </div>
 
-    <div class="campo-form">
-      <label for="nuevo_apellido">Apellido</label>
-      <input type="text" id="nuevo_apellido" name="nuevo_apellido" placeholder="Ej. Pérez" required>
-    </div>
 
-    <div class="campo-form">
-      <label for="nuevo_nombre">Nombre</label>
-      <input type="text" id="nuevo_nombre" name="nuevo_nombre" placeholder="Ej. Juan" required>
-    </div>
 
-    <div class="campo-form">
-      <label for="direccion_existente">Dirección</label>
-      <select id="direccion_existente" name="direccion_existente" class="select-box" required>
-        <option value="">-- Selecciona una dirección --</option>
-        {% for dir in direcciones %}
-        <option value="{{ dir.id }}">{{ dir.descripcion }}</option>
-        {% endfor %}
-      </select>
-    </div>
 
-    <button type="submit" class="btn-editar">Guardar Cliente</button>
-  </form>
-</section>
-{% endif %}
+<!-- Modal para admin de crear-->
+
+
+<!-- Fin modal para admin de crear-->
 
 <script>
-    //Script clientes
-      
-      document.addEventListener('DOMContentLoaded', () => {
-        // Abrir modal
-        document.querySelectorAll('.abrir-modal').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const id = btn.dataset.id;
-            const modal = document.getElementById('modal-' + id);
-            if (modal) modal.style.display = 'flex';
-          });
-        });
 
-        // Cerrar modal con botón ❌ o botón Cancelar
-        document.querySelectorAll('.cerrar-modal').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const id = btn.dataset.id;
-            const modal = document.getElementById('modal-' + id);
-            if (modal) modal.style.display = 'none';
-          });
-        });
-
-        // Cerrar modal al hacer clic fuera del contenido
-        document.querySelectorAll('.modal-cliente').forEach(modal => {
-          modal.addEventListener('click', e => {
-            if (e.target === modal) {
-              modal.style.display = 'none';
-            }
-          });
-        });
-      });
       
   // ✅ Agrega un producto al contenedor si no está repetido
-  function agregarProducto() {
-    const selector = document.getElementById("selectorProductos");
-    const contenedor = document.getElementById("productosSeleccionados");
-    const id = selector.value;
-    const nombre = selector.options[selector.selectedIndex].text;
-    const stock = selector.options[selector.selectedIndex].getAttribute("data-stock");
+  const productos = {{ productos | tojson }};
 
-    if (id && !document.getElementById("producto_" + id)) {
-      const div = document.createElement("div");
-      div.className = "producto-item";
-      div.id = "producto_" + id;
-      div.innerHTML = `
-        <div style="margin-top:10px;">
-          <strong>${nombre}</strong> 
-          <span style="color:gray; font-size: 0.9em;">(Stock: ${stock})</span><br>
-          <input type="hidden" name="productos[]" value="${id}">
-          <label for="cantidad_${id}">Cantidad:</label>
-          <input 
-            type="number" 
-            id="cantidad_${id}" 
-            name="cantidades[]" 
-            class="input" 
-            min="1" 
-            max="${stock}" 
-            value="1" 
-            style="max-width: 100px;" 
-            oninput="validarCantidad('${id}', ${stock})">
-          <button type="button" class="boton-eliminar" onclick="eliminarProducto('${id}')">❌</button>
-        </div>
-      `;
-      contenedor.appendChild(div);
+  // 🔹 Función para habilitar/deshabilitar el botón al escribir
+  function verificarInput() {
+    const input = document.getElementById('inputIdProducto');
+    const boton = document.getElementById('btnAgregar');
+    boton.disabled = input.value.trim() === '';
+  }
+
+  // 🔹 Modal de error personalizado
+  function mostrarModal(mensaje = "Ocurrió un error.") {
+    const modal = document.getElementById('modalMensaje');
+    const texto = document.getElementById('textoModal');
+
+    if (texto) texto.innerText = mensaje;
+    if (modal) modal.style.display = 'flex';
+    console.log(" Modal mostrado:", mensaje);
+  }
+
+  function cerrarModal() {
+    const modal = document.getElementById('modalMensaje');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // 🔹 Función principal: agregar producto
+  function agregarProducto() {
+    const inputId = document.getElementById("inputIdProducto");
+    const contenedor = document.getElementById("productosSeleccionados");
+    const id = inputId.value.trim();
+
+    // Validar que haya un ID
+    if (!id) {
+      mostrarModal("Por favor, introduce un ID de producto.");
+      return;
     }
 
-    selector.value = "";
+    // Buscar producto por ID en la lista de productos
+    const producto = productos.find(p => p.id_producto == id);
+
+    // Si no existe, mostrar modal en lugar de alert
+    if (!producto) {
+      mostrarModal(" No se encontró el ID del producto.");
+      inputId.value = "";
+      return;
+    }
+
+    // Si el producto ya fue agregado
+    if (document.getElementById("producto_" + id)) {
+      mostrarModal(" Este producto ya fue agregado.");
+      inputId.value = "";
+      return;
+    }
+
+    // Crear nuevo elemento visual
+    const div = document.createElement("div");
+    div.className = "producto-item";
+    div.id = "producto_" + id;
+    div.innerHTML = `
+      <div style="margin-top:10px;">
+        <strong>${producto.nombre}</strong> 
+        <span style="color:gray; font-size: 0.9em;">(Stock: ${producto.cantidad})</span><br>
+        <input type="hidden" name="productos[]" value="${id}">
+        <label for="cantidad_${id}">Cantidad:</label>
+        <input 
+          type="number" 
+          id="cantidad_${id}" 
+          name="cantidades[]" 
+          class="input" 
+          min="1" 
+          max="${producto.cantidad}" 
+          value="1" 
+          style="max-width: 100px;" 
+          oninput="validarCantidad('${id}', ${producto.cantidad})">
+        <input id="precio_${id}" name="precio_${id}" value="${producto.precio}" hidden>
+        <button type="button" class="boton-eliminar" onclick="eliminarProducto('${id}')">❌</button>
+      </div>
+    `;
+
+    contenedor.appendChild(div);
+    inputId.value = "";
   }
+
+  
+document.getElementById('buscarCliente').addEventListener('click', () => {
+  const telefono = document.getElementById('telefono').value.trim();
+  if (!telefono) {
+    alert("Ingresa un número de teléfono");
+    return;
+  }
+
+  fetch(`/buscar_cliente/${encodeURIComponent(telefono)}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.exists) {
+        document.getElementById('nombre').value = data.nombre;
+        document.getElementById('apellido').value = data.apellido;
+        document.getElementById('apodo').value = data.apodo || '';
+      } else {
+        alert("Cliente no encontrado, ingresa los datos manualmente");
+        document.getElementById('nombre').value = '';
+        document.getElementById('apellido').value = '';
+        document.getElementById('apodo').value = '';
+      }
+    })
+    .catch(error => console.error("Error:", error));
+});
 
   // ✅ Valida que la cantidad esté dentro del rango permitido
   function validarCantidad(id, stock) {
@@ -667,16 +1165,16 @@
 
     if (errores.length > 0) {
       mostrarErrores(errores);
-      return;
+      return; 
     }
 
     // Mostrar resumen si no hay errores
     let total = 0;
     productos.forEach(prod => {
       const id = prod.value;
-      const cantidad = parseInt(document.getElementById(`cantidad_${id}`).value);
+      const cantidad = parseFloat(document.getElementById(`cantidad_${id}`).value);
       const nombreProducto = document.querySelector(`#producto_${id} strong`).innerText;
-      const precio = parseFloat(document.querySelector(`#selectorProductos option[value='${id}']`)?.dataset.precio || 0);
+      const precio = parseFloat(document.getElementById(`precio_${id}`).value);
       const subtotal = precio * cantidad;
       total += subtotal;
 
@@ -716,12 +1214,16 @@
     document.getElementById("modalTransferencia").style.display = "none";
   }
 </script>
-
 {% endif %}
+{% endif %}
+
 
 
 </div>
 <script>
+  
+  document.getElementById("modal-qr").style.display = "flex";
+
 //Script clientes (mueve todo este bloque aquí afuera)
   document.addEventListener('DOMContentLoaded', () => {
     // Abrir modal
@@ -833,7 +1335,6 @@
     </script>
   {% endif %}
 {% endwith %}
-
 </body>
 
 <script>
@@ -860,6 +1361,100 @@
 
     contenedor.appendChild(noti);
   }
+
+
+
+//Script para abrir y cerrar el modal gasto
+
+  document.getElementById("btnProveedor").addEventListener("click", function() {
+  document.getElementById("modalProveedor").style.display = "flex";
+});
+
+document.getElementById("cerrarModal").addEventListener("click", function() {
+  document.getElementById("modalProveedor").style.display = "none";
+});
+
+// Cierra el modal si se hace clic fuera del contenido
+window.addEventListener("click", function(e) {
+  const modal = document.getElementById("modalProveedor");
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
+document.getElementById("btnProveedor").onclick = function() {
+  document.getElementById("modalProveedor").style.display = "block";
+};
+document.getElementById("cerrarModal").onclick = function() {
+  document.getElementById("modalProveedor").style.display = "none";
+};
+
+document.getElementById("btnVerGastos").onclick = function() {
+  document.getElementById("modalGastos").style.display = "block";
+};
+document.getElementById("cerrarModalGastos").onclick = function() {
+  document.getElementById("modalGastos").style.display = "none";
+};
+
+window.onclick = function(event) {
+  if (event.target.classList.contains('modal')) {
+    event.target.style.display = "none";
+  }
+};
+
+  // --- Modal Editar Dirección ---
+  const modalDireccion = document.getElementById("modalDireccion");
+  const cerrarModalDireccion = document.getElementById("cerrarModalDireccion");
+  const cancelarDireccion = document.getElementById("cancelarDireccion");
+  const idDireccion = document.getElementById("idDireccion");
+
+  document.querySelectorAll(".abrir-modal").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.getAttribute("data-id");
+      idDireccion.value = id;
+      modalDireccion.style.display = "flex";
+    });
+  });
+
+  const cerrarDireccion = () => modalDireccion.style.display = "none";
+  cerrarModalDireccion.onclick = cerrarDireccion;
+  cancelarDireccion.onclick = cerrarDireccion;
+
+
+  // --- Modal Ver Referencia ---
+  const modalReferencia = document.getElementById("modalReferencia");
+  const cerrarModalReferencia = document.getElementById("cerrarModalReferencia");
+  const cancelarReferencia = document.getElementById("cancelarReferencia");
+  const textoReferencia = document.getElementById("textoReferencia");
+
+  document.querySelectorAll(".abrir-referencia").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.getAttribute("data-id");
+      
+      // Aquí puedes reemplazar este fetch con tu ruta Flask real
+      fetch(`/referencia_cliente/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          textoReferencia.textContent = data.referencia || "No hay referencia registrada.";
+        })
+        .catch(() => {
+          textoReferencia.textContent = "Error al cargar la referencia.";
+        });
+
+      modalReferencia.style.display = "flex";
+    });
+  });
+
+  const cerrarReferencia = () => modalReferencia.style.display = "none";
+  cerrarModalReferencia.onclick = cerrarReferencia;
+  cancelarReferencia.onclick = cerrarReferencia;
+
+  // --- Cerrar modal al hacer clic fuera ---
+  window.onclick = e => {
+    if (e.target === modalDireccion) cerrarDireccion();
+    if (e.target === modalReferencia) cerrarReferencia();
+  };
+
 </script>
 
   

@@ -1,4 +1,4 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
-hashed_password = generate_password_hash("nando")
+hashed_password = generate_password_hash("admin")
 print(hashed_password)  

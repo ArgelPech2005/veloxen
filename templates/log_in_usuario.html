@@ -1,64 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Usuario</title>
-  <!-- Incluye FontAwesome para los iconos -->
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/log_in_user.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/loaderG.css') }}">
+
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="bodyUsuario">
 
   {% include 'components/loaderG.html' %}
 
-  <!-- Solo queda el formulario centrado -->
   <div class="usuario-container">
     <div class="form-container">
       <form class="login-form" method="POST">
         <h2 class="titulo-form">Iniciar Sesión</h2>
 
-       <div class="input-group">
-          <label for="number">
-            <i class="fa-solid fa-phone"></i> Número celular
-          </label>
-          <input 
-            id="number" 
-            type="tel" 
-            name="number" 
-            pattern="\d{10}" 
-            maxlength="10" 
-            placeholder="Ingresa tu número celular" 
-            class="input" 
-            value="{{ request.form.get('number') or '' }}"
-            inputmode="numeric"
-            autocomplete="tel">
-          {% if errores.get("number") %}
-            <span class="error">{{ errores["number"] }}</span>
-          {% endif %}
+        <div class="input-group">
+          <label for="usuario"><i class="fa-solid fa-user"></i> Usuario</label>
+          <input id="usuario" type="text" name="usuario" placeholder="Ingresa tu nombre de usuario"
+                 class="input" maxlength="15" value="{{ request.form.get('usuario', '') }}" />
+          {% for err in errores %}
+            {% if 'usuario' in err.lower() %}
+              <span class="error">{{ err }}</span>
+            {% endif %}
+          {% endfor %}
         </div>
 
         <div class="input-group">
-          <label for="password">
-            <i class="fa-solid fa-lock"></i> Contraseña
-          </label>
-          <input id="password" type="password" name="password" placeholder="Ingresa tu contraseña" class="input" value="{{ request.form.get('password') or '' }}">
-          {% if errores.get("password") %}
-            <span class="error">{{ errores["password"] }}</span>
+          <label for="password"><i class="fa-solid fa-lock"></i> Contraseña</label>
+          <input id="password" type="password" name="password" placeholder="Ingresa tu contraseña"
+                 class="input" value="{{ request.form.get('password', '') }}" />
+          {% for err in errores %}
+            {% if 'contraseña' in err.lower() or 'password' in err.lower() %}
+              <span class="error">{{ err }}</span>
+            {% endif %} 
+          {% endfor %}
+        </div>
+
+        {% for err in errores %}
+          {% if 'codigo de verificación' in err.lower() or 'login' in err.lower() %}
+            <span class="error">{{ err }}</span>
           {% endif %}
+        {% endfor %}
+
+        <!-- NUEVO INPUT 2FA (OCULTO POR DEFECTO) -->
+        <div class="input-group" id="codigo-2fa-group" style="display:none;">
+          <label for="codigo_2fa"><i class="fa-solid fa-shield-halved"></i> Código 2FA</label>
+          <input id="codigo_2fa" type="number" name="codigo_2fa" placeholder="Ingresa tu código de verificacion"
+                 class="input" maxlength="6" value="{{ request.form.get('codigo_2fa', '') }}" />
         </div>
 
         <div class="btn-group">
           <button type="submit" class="btn-login-uiverse">Iniciar sesión</button>
-          <button type="button" onclick="location.href='{{ url_for('home') }}'" class="btn-login-uiverse">Regresar</button>
         </div>
       </form>
     </div>
   </div>
 
+  <script>
+    const usuario = document.getElementById('usuario');
+    const password = document.getElementById('password');
+    const codigo2faGroup = document.getElementById('codigo-2fa-group');
+
+    function mostrarCodigo2FA() {
+      if (usuario.value.trim() !== '' && password.value.trim() !== '') {
+        codigo2faGroup.style.display = 'block';
+      } else {
+        codigo2faGroup.style.display = 'none';
+      }
+    }
+
+    usuario.addEventListener('input', mostrarCodigo2FA);
+    password.addEventListener('input', mostrarCodigo2FA);
+  </script>
 
 </body>
-{% include 'components/footer.html' %}
+
 </html>

@@ -1,0 +1,65 @@
+NOTICIA INSTITUCIONAL TECNM CAMPUS PROGRESO
+
+El Tecnológico Nacional de México, Campus Progreso, informó que durante el semestre 2025-02 se llevó a cabo una actividad académica con estudiantes de sexto semestre de la asignatura Lenguajes Autómatas I. La documentación generada durante el evento contenía inconsistencias temporales que requieren revisión manual.
+
+La actividad se realizó el 01/02/2025 y se enmarca en los lineamientos académicos vigentes desde el 2025-02-01. El propósito declarado fue "fortalecer competencias de análisis de información en documentos extensos utilizados en contextos institucionales", aunque varios estudiantes reportaron que el único fortalecimiento notable fue su tolerancia a la frustración.
+
+IDENTIFICADORES DE SISTEMA GENERADOS ALEATORIAMENTE
+
+Para propósitos de prueba por que no se me ocurrió como meterlos, se incluyen los siguientes códigos: 
+SYS2025TEMP, PROG123456, TEST789ABC, ID_ALUMNO_01, ACCESS202502, TOKENA1B2C3, USR98765432, ADMINKEY999, SESSION1234, CONFIG8888
+
+CONTACTO INSTITUCIONAL Y NO TAN OFICIAL
+
+Difusión: difusion@tecnm.mx (responde solo en días que terminan en "y")
+Campus Progreso: progreso@tecnm.mx
+Coordinación académica: lenguajes.automatas@tecnm.mx
+Soporte técnico: soporte@regex.mx (dominio cuestionable)
+
+Teléfonos de contacto oficiales y no oficiales:
+(999) 312-4455 (oficina principal)
+999 312 4455 (mismo número, pero se siente diferente)
+999-312-4455 (versión "amigable para máquinas")
+9993124455 (para marcar rápido cuando huyes de un autómata)
+(998) 555-1212 (este parece de Cancún, nadie sabe cómo llegó aquí)
+999-867-5309 (Jenny, Jenny, ¿quién te dio este número?)
+
+GRUPO SEXTO SEMESTRE – LENGUAJES AUTÓMATAS I
+
+La actividad estuvo a cargo del profesor Ulises Morales, cuya pedagogía ha sido descrita como "un encuentro cercano del tercer tipo con la teoría de compiladores". Estudiantes anónimos reportaron que su método de evaluación consiste en pedirte que escribas una expresión regular que coincida con tu propia alma.
+
+Participaron los siguientes valientes estudiantes (con datos oficiales):
+
+BASTO DURAN CRISTIAN JESUS - RFC: BAJC950101H23 - CURP: BAJC950101HYNSRS09
+CABALLERO GONZÁLEZ DAVID EZEQUIEL - RFC: CAGD960202M45 - CURP: CAGD960202MYNLND00
+CASTILLO EK LISSIE XIOMARA - RFC: CAEL970303T67 - CURP: CAEL970303MYKSSA01
+CHAN CAMPOS JOSE JESUS - RFC: CACJ980404R89 - CURP: CACJ980404HYNMPN02
+CHIM VERA ANGEL GABRIEL - RFC: CAVA990505P12 - CURP: CAVA990505HYNVRB03
+
+* Nota: Los RFCs y CURPs anteriores son ejemplificativos y cualquier coincidencia con la realidad es puro accidente computacional.*
+
+DESARROLLO DE LA ACTIVIDAD (CRÓNICA DE UN DESASTRE ANUNCIADO)
+
+Durante la jornada se trabajó con documentación administrativa que incluía fechas como 28/02/2023, 30/03/2022 y 2022-10-15, así como periodos del 01/01/2023 al 31/01/2023. La actividad consistió en analizar este mismo comunicado, creando un bucle recursivo de metaanálisis que casi colapsa la matriz espacio-temporal del aula 304.
+
+La línea más comentada del documento fue: "La actividad fue tan repetitiva que la palabra actividad se repetía en cada actividad realizada durante la actividad."
+
+Se identificaron patrones curiosos en la data, incluyendo el correo electrónico usuario@dominio.com (clásico) y su variante usuario@dominio.com (sí, aparece dos veces en distintos formatos). También se encontró el teléfono (999) 000-0000 que claramente pertenece al estudiante fantasma que siempre firma la lista pero nadie ve.
+
+OBSERVACIONES Y ANOMALÍAS DETECTADAS
+
+Además del comunicado principal, el documento incluye información de contacto que se repite tanto que ya se siente como un viejo amigo. Los múltiples formatos de fechas sugieren que el sistema administrativo está en una relación abierta con varios estándares ISO.
+
+Errores de captura notables:
+- Fecha: 31/02/2023 (aparentemente en un universo paralelo donde febrero tiene 31 días)
+- Correo: soporte@tecnm (sin TLD, como un grito incompleto)
+- RFC: MORU820101 (del profesor, pero con homoclave "XXX", muy sospechoso)
+- CURP: XEXX010101MXXX000 (la clásica "genérica" que usa todo el mundo)
+
+Se recibió también una línea misteriosa: "El sistema reportó un error al intentar procesar el error anterior, creando una pila de errores que se asemeja a una torre de Pisa digital."
+
+El evento, en teoría, formó parte de las actividades académicas del semestre 2025-02 en el Campus Progreso, aunque algunos insisten que fue un experimento social para medir la paciencia humana.
+
+
+
+* Fin del comunicado, a menos que tu expresión regular capture también lo que viene después del punto final.

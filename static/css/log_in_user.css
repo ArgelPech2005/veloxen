@@ -118,3 +118,8 @@ body.bodyUsuario {
 }
 
 
+.g-recaptcha {
+  margin: 10px auto;
+  display: flex;
+  justify-content: center;
+}
